@@ -1,0 +1,42 @@
+
+Declaration.     Dec ::= Type_specifier Ident ";";
+
+Tint. Type_specifier ::= "int";
+
+(:[]).   [Ident] ::= Ident ;
+(:).     [Ident] ::= Ident "," [Ident] ;
+
+ExprS.    Stm ::= Expression_stm;
+SelS.     Stm ::= Selection_stm;
+IterS.    Stm ::= Iter_stm;
+
+SexprOne.   Expression_stm ::= ";" ;
+SexprTwo.   Expression_stm ::= Exp ";" ;
+
+SselOne.    Selection_stm ::= "if" "(" Exp ")" Stm ;
+SselTwo.    Selection_stm ::= "if" "(" Exp ")" Stm "else" Stm ;
+
+SiterOne.   Iter_stm ::= "while" "(" Exp ")" Stm;
+
+Ecomma.       Exp ::= Exp "," Exp1;
+Eassign.      Exp1 ::= Exp4 Assignment_op Exp1;
+Eplus.        Exp2 ::= Exp2 "+" Exp3;
+Eminus.       Exp2 ::= Exp2 "-" Exp3;
+Etimes.       Exp3 ::= Exp3 "*" Exp4;
+Ediv.         Exp3 ::= Exp3 "/" Exp4;
+Epostinc.     Exp4 ::= Exp4 "++";
+Epostdec.     Exp4 ::= Exp4 "--";
+Evar.         Exp5 ::= Ident;
+
+_. Exp ::= Exp1;
+_. Exp1 ::= Exp2;
+_. Exp2 ::= Exp3;
+_. Exp3 ::= Exp4;
+_. Exp4 ::= Exp5;
+_. Exp5 ::= "(" Exp ")";
+
+Assign.       Assignment_op ::= "=" ;
+AssignMul.    Assignment_op ::= "*=" ;
+AssignDiv.    Assignment_op ::= "/=" ;
+AssignAdd.    Assignment_op ::= "+=" ;
+AssignSub.    Assignment_op ::= "-=" ;
