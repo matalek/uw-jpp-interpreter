@@ -18,6 +18,7 @@ ExprS.    Stm ::= Expression_stm;
 SelS.     Stm ::= Selection_stm;
 IterS.    Stm ::= Iter_stm;
 JumpS.    Stm ::= Jump_stm;
+PrintS.   Stm ::= Print_stm;
 
 ScompOne.   Compound_stm ::= "{" "}" ;
 ScompTwo.   Compound_stm ::= "{" [Stm] "}" ;
@@ -31,8 +32,12 @@ SselOne.    Selection_stm ::= "if" "(" Exp ")" Stm ;
 SselTwo.    Selection_stm ::= "if" "(" Exp ")" Stm "else" Stm ;
 
 SiterOne.   Iter_stm ::= "while" "(" Exp ")" Stm;
+SiterThree. Iter_stm ::= "for" "(" Expression_stm Expression_stm ")" Stm ;
+SiterFour.  Iter_stm ::= "for" "(" Expression_stm Expression_stm Exp ")" Stm;
 
 SjumpFive.  Jump_stm ::= "return" Exp ";" ;
+
+Sprint.     Print_stm ::= "print" Exp ";" ;
 
 (:[]).   [Stm] ::= Stm ;
 (:).     [Stm] ::= Stm [Stm];
