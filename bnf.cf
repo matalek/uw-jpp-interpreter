@@ -1,7 +1,20 @@
+-- Aleksander Matusiak
+
+entrypoints Program, Stm, Exp ;
+
+Progr.  Program ::= [External_declaration] ;
+
+(:[]).    [External_declaration] ::= External_declaration;
+(:).      [External_declaration] ::= External_declaration [External_declaration];
+
+Afunc.  External_declaration ::= Function_def ;
+Global. External_declaration ::= Dec ;
 
 Declaration.     Dec ::= Type_specifier Ident ";";
 
-Tint. Type_specifier ::= "int";
+Tvoid.        Type_specifier ::= "void";
+Tint.         Type_specifier ::= "int";
+Tbool.        Type_specifier ::= "bool";
 
 (:[]).   [Ident] ::= Ident ;
 (:).     [Ident] ::= Ident "," [Ident] ;
