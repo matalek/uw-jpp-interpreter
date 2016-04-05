@@ -12,9 +12,15 @@ Global. External_declaration ::= Dec ;
 
 Declaration.     Dec ::= Type_specifier Ident ";";
 
+(:[]).   [Dec] ::= Dec ;
+(:).     [Dec] ::= Dec [Dec] ;
+
 Tvoid.        Type_specifier ::= "void";
 Tint.         Type_specifier ::= "int";
 Tbool.        Type_specifier ::= "bool";
+Tstruct.      Type_specifier ::= Struct_spec;
+
+Tag.      Struct_spec ::= "struct" Ident "{" [Dec] "}" ;
 
 (:[]).   [Ident] ::= Ident ;
 (:).     [Ident] ::= Ident "," [Ident] ;
@@ -61,16 +67,20 @@ Eplus.        Exp2 ::= Exp2 "+" Exp3;
 Eminus.       Exp2 ::= Exp2 "-" Exp3;
 Etimes.       Exp3 ::= Exp3 "*" Exp4;
 Ediv.         Exp3 ::= Exp3 "/" Exp4;
-Epostinc.     Exp4 ::= Exp4 "++";
-Epostdec.     Exp4 ::= Exp4 "--";
-Evar.         Exp5 ::= Ident;
+Eselect       Exp4 ::= Exp4 "." Ident;
+Earray.       Exp4 ::= Exp4 "[" Exp "]" ;
+Emap.         Exp4 ::= Exp4 "<" Exp ">" ;
+Epostinc.     Exp5 ::= Exp5 "++";
+Epostdec.     Exp5 ::= Exp5 "--";
+Evar.         Exp6 ::= Ident;
 
 _. Exp ::= Exp1;
 _. Exp1 ::= Exp2;
 _. Exp2 ::= Exp3;
 _. Exp3 ::= Exp4;
 _. Exp4 ::= Exp5;
-_. Exp5 ::= "(" Exp ")";
+_. Exp5 ::= Exp6;
+_. Exp6 ::= "(" Exp ")";
 
 Assign.       Assignment_op ::= "=" ;
 AssignMul.    Assignment_op ::= "*=" ;
