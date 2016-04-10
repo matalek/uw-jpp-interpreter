@@ -1,4 +1,5 @@
 -- Aleksander Matusiak
+-- EBNF grammar of Matal language
 
 entrypoints Program, Stm, Exp ;
 
@@ -10,7 +11,8 @@ Progr.  Program ::= [External_declaration] ;
 Afunc.  External_declaration ::= Function_def ;
 Global. External_declaration ::= Dec ;
 
-Declaration.     Dec ::= Type_specifier Ident ";";
+Declarator.      Declarator ::= Type_specifier Ident ;
+Declaration.     Dec ::= Declarator ";";
 
 (:[]).   [Dec] ::= Dec ;
 (:).     [Dec] ::= Dec [Dec] ;
@@ -20,17 +22,15 @@ Tint.         Type_specifier ::= "int";
 Tbool.        Type_specifier ::= "bool";
 Tstruct.      Type_specifier ::= Struct_spec;
 
-Tag.      Struct_spec ::= "struct" Ident "{" [Dec] "}" ;
+Struct.      Struct_spec ::= "struct" Ident "{" [Dec] "}" ;
 
 (:[]).   [Ident] ::= Ident ;
 (:).     [Ident] ::= Ident "," [Ident] ;
 
 Func.   Function_def ::= Type_specifier Ident "(" Parameter_declarations ")" Compound_stm;
 
-ParamDec.     Parameter_declarations ::= Parameter_declaration ;
+ParamDec.     Parameter_declarations ::= Declarator ;
 MoreParamDec. Parameter_declarations ::= Parameter_declarations "," Parameter_declaration ;
-
-TypeAndParam.  Parameter_declaration ::= [Declaration_specifier] Declarator ;
 
 CompS.    Stm ::= Compound_stm ;
 ExprS.    Stm ::= Expression_stm;
@@ -41,8 +41,7 @@ PrintS.   Stm ::= Print_stm;
 
 ScompOne.   Compound_stm ::= "{" "}" ;
 ScompTwo.   Compound_stm ::= "{" [Stm] "}" ;
-ScompThree. Compound_stm ::= "{" [Dec] "}" ;
-ScompFour.  Compound_stm ::= "{" [Dec] [Stm] "}" ;
+ScompThree.  Compound_stm ::= "{" [Dec] [Stm] "}" ;
 
 SexprOne.   Expression_stm ::= ";" ;
 SexprTwo.   Expression_stm ::= Exp ";" ;
