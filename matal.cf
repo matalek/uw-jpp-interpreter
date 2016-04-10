@@ -13,9 +13,6 @@ Global.     External_declaration ::= Dec ;
 StructDec.  External_declaration ::= Struct_spec;
 
 Dvariable.      Declarator ::= Type_specifier Ident ;
---DarrayNoSize.   Declarator ::= Declarator "[" "]" Ident ;
---DarraySize.     Declarator ::= Declarator "[" Exp "]" Ident ;
---Dmap.           Declarator ::= Declarator "<<" Type_specifier ">>" ;
 
 Declaration.     Dec ::= Declarator ";";
 
