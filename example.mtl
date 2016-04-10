@@ -1,0 +1,50 @@
+-- Example file showing Matal language functionalities
+
+struct person {
+  int age;
+  bool male;
+}
+
+void printPeople(person[] people, int n) {
+  for (int i = 0; i < n; i++) {
+    print people[i].age;
+    if (people[i].male)
+      print 1;
+    else
+      print 0;
+}
+
+int main() {
+
+  // Creating example data
+  person[10] people;
+  for (int i = 0; i < 5; i++) {
+    people[i].age = i * 10;
+    people[i].male = true;
+  }
+
+  for (int i = 5; i < 10; i++) {
+    people[i].age = i * 10;
+    people[i].male = false;
+  }
+
+  // Dictionary, indexed with int
+  person<int> age;
+
+  int j = 0, sum = 0;
+  while (j < 10) {
+    sum += people[i].age;
+    person<people[i].age> = people[i]; // creates copy of the person
+    j++;
+  }
+
+  // Printing out data
+  printPeople(people, 10);
+
+  // print people<5>.age; // would result in an error
+
+  print people<10>.age; // prints 10
+
+
+  return 0;
+}
