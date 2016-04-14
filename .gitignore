@@ -1,0 +1,10 @@
+*.ps
+*.dvi
+*.aux
+*~
+*.log
+*.o
+TestMatal
+*.hi
+ParMatal.hs
+LexMatal.hs
