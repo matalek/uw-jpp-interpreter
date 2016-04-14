@@ -72,22 +72,22 @@ and {\emptyP} (empty rule) belong to the BNF notation.
 All other symbols are terminals.\\
 
 \begin{tabular}{lll}
-{\nonterminal{Program}} & {\arrow}  &{\nonterminal{ListExternal-declaration}}  \\
+{\nonterminal{Program}} & {\arrow}  &{\nonterminal{ListExternalDeclaration}}  \\
 \end{tabular}\\
 
 \begin{tabular}{lll}
-{\nonterminal{ListExternal-declaration}} & {\arrow}  &{\nonterminal{External-declaration}}  \\
- & {\delimit}  &{\nonterminal{External-declaration}} {\nonterminal{ListExternal-declaration}}  \\
+{\nonterminal{ListExternalDeclaration}} & {\arrow}  &{\nonterminal{ExternalDeclaration}}  \\
+ & {\delimit}  &{\nonterminal{ExternalDeclaration}} {\nonterminal{ListExternalDeclaration}}  \\
 \end{tabular}\\
 
 \begin{tabular}{lll}
-{\nonterminal{External-declaration}} & {\arrow}  &{\nonterminal{Function-def}}  \\
+{\nonterminal{ExternalDeclaration}} & {\arrow}  &{\nonterminal{FunctionDef}}  \\
  & {\delimit}  &{\nonterminal{Dec}}  \\
- & {\delimit}  &{\nonterminal{Struct-spec}}  \\
+ & {\delimit}  &{\nonterminal{StructSpec}}  \\
 \end{tabular}\\
 
 \begin{tabular}{lll}
-{\nonterminal{Declarator}} & {\arrow}  &{\nonterminal{Type-specifier}} {\nonterminal{Ident}}  \\
+{\nonterminal{Declarator}} & {\arrow}  &{\nonterminal{TypeSpecifier}} {\nonterminal{Ident}}  \\
 \end{tabular}\\
 
 \begin{tabular}{lll}
@@ -100,16 +100,16 @@ All other symbols are terminals.\\
 \end{tabular}\\
 
 \begin{tabular}{lll}
-{\nonterminal{Type-specifier}} & {\arrow}  &{\terminal{void}}  \\
+{\nonterminal{TypeSpecifier}} & {\arrow}  &{\terminal{void}}  \\
  & {\delimit}  &{\terminal{int}}  \\
  & {\delimit}  &{\terminal{bool}}  \\
  & {\delimit}  &{\nonterminal{Ident}}  \\
- & {\delimit}  &{\nonterminal{Type-specifier}} {\terminal{[]}}  \\
- & {\delimit}  &{\nonterminal{Type-specifier}} {\terminal{{$<$}{$<$}}} {\nonterminal{Type-specifier}} {\terminal{{$>$}{$>$}}}  \\
+ & {\delimit}  &{\nonterminal{TypeSpecifier}} {\terminal{[]}}  \\
+ & {\delimit}  &{\nonterminal{TypeSpecifier}} {\terminal{{$<$}{$<$}}} {\nonterminal{TypeSpecifier}} {\terminal{{$>$}{$>$}}}  \\
 \end{tabular}\\
 
 \begin{tabular}{lll}
-{\nonterminal{Struct-spec}} & {\arrow}  &{\terminal{struct}} {\nonterminal{Ident}} {\terminal{\{}} {\nonterminal{ListDec}} {\terminal{\}}}  \\
+{\nonterminal{StructSpec}} & {\arrow}  &{\terminal{struct}} {\nonterminal{Ident}} {\terminal{\{}} {\nonterminal{ListDec}} {\terminal{\}}}  \\
 \end{tabular}\\
 
 \begin{tabular}{lll}
@@ -118,57 +118,57 @@ All other symbols are terminals.\\
 \end{tabular}\\
 
 \begin{tabular}{lll}
-{\nonterminal{Function-def}} & {\arrow}  &{\nonterminal{Declarator}} {\terminal{(}} {\terminal{)}} {\nonterminal{Compound-Stmt}}  \\
- & {\delimit}  &{\nonterminal{Declarator}} {\terminal{(}} {\nonterminal{Parameter-declarations}} {\terminal{)}} {\nonterminal{Compound-Stmt}}  \\
+{\nonterminal{FunctionDef}} & {\arrow}  &{\nonterminal{Declarator}} {\terminal{(}} {\terminal{)}} {\nonterminal{CompoundStmt}}  \\
+ & {\delimit}  &{\nonterminal{Declarator}} {\terminal{(}} {\nonterminal{ParameterDeclarations}} {\terminal{)}} {\nonterminal{CompoundStmt}}  \\
 \end{tabular}\\
 
 \begin{tabular}{lll}
-{\nonterminal{Parameter-declarations}} & {\arrow}  &{\nonterminal{Declarator}}  \\
- & {\delimit}  &{\nonterminal{Parameter-declarations}} {\terminal{,}} {\nonterminal{Declarator}}  \\
+{\nonterminal{ParameterDeclarations}} & {\arrow}  &{\nonterminal{Declarator}}  \\
+ & {\delimit}  &{\nonterminal{ParameterDeclarations}} {\terminal{,}} {\nonterminal{Declarator}}  \\
 \end{tabular}\\
 
 \begin{tabular}{lll}
-{\nonterminal{Stmt}} & {\arrow}  &{\nonterminal{Compound-Stmt}}  \\
- & {\delimit}  &{\nonterminal{Expression-Stmt}}  \\
- & {\delimit}  &{\nonterminal{Selection-Stmt}}  \\
- & {\delimit}  &{\nonterminal{Iter-Stmt}}  \\
- & {\delimit}  &{\nonterminal{Jump-Stmt}}  \\
- & {\delimit}  &{\nonterminal{Print-Stmt}}  \\
- & {\delimit}  &{\nonterminal{Init-Stmt}}  \\
+{\nonterminal{Stmt}} & {\arrow}  &{\nonterminal{CompoundStmt}}  \\
+ & {\delimit}  &{\nonterminal{ExpressionStmt}}  \\
+ & {\delimit}  &{\nonterminal{SelectionStmt}}  \\
+ & {\delimit}  &{\nonterminal{IterStmt}}  \\
+ & {\delimit}  &{\nonterminal{JumpStmt}}  \\
+ & {\delimit}  &{\nonterminal{PrintStmt}}  \\
+ & {\delimit}  &{\nonterminal{InitStmt}}  \\
 \end{tabular}\\
 
 \begin{tabular}{lll}
-{\nonterminal{Compound-Stmt}} & {\arrow}  &{\terminal{\{}} {\terminal{\}}}  \\
+{\nonterminal{CompoundStmt}} & {\arrow}  &{\terminal{\{}} {\terminal{\}}}  \\
  & {\delimit}  &{\terminal{\{}} {\nonterminal{ListStmt}} {\terminal{\}}}  \\
  & {\delimit}  &{\terminal{\{}} {\nonterminal{ListDec}} {\nonterminal{ListStmt}} {\terminal{\}}}  \\
 \end{tabular}\\
 
 \begin{tabular}{lll}
-{\nonterminal{Expression-Stmt}} & {\arrow}  &{\terminal{;}}  \\
+{\nonterminal{ExpressionStmt}} & {\arrow}  &{\terminal{;}}  \\
  & {\delimit}  &{\nonterminal{Exp}} {\terminal{;}}  \\
 \end{tabular}\\
 
 \begin{tabular}{lll}
-{\nonterminal{Selection-Stmt}} & {\arrow}  &{\terminal{if}} {\terminal{(}} {\nonterminal{Exp}} {\terminal{)}} {\nonterminal{Stmt}}  \\
+{\nonterminal{SelectionStmt}} & {\arrow}  &{\terminal{if}} {\terminal{(}} {\nonterminal{Exp}} {\terminal{)}} {\nonterminal{Stmt}}  \\
  & {\delimit}  &{\terminal{if}} {\terminal{(}} {\nonterminal{Exp}} {\terminal{)}} {\nonterminal{Stmt}} {\terminal{else}} {\nonterminal{Stmt}}  \\
 \end{tabular}\\
 
 \begin{tabular}{lll}
-{\nonterminal{Iter-Stmt}} & {\arrow}  &{\terminal{while}} {\terminal{(}} {\nonterminal{Exp}} {\terminal{)}} {\nonterminal{Stmt}}  \\
- & {\delimit}  &{\terminal{for}} {\terminal{(}} {\nonterminal{Expression-Stmt}} {\nonterminal{Expression-Stmt}} {\terminal{)}} {\nonterminal{Stmt}}  \\
- & {\delimit}  &{\terminal{for}} {\terminal{(}} {\nonterminal{Expression-Stmt}} {\nonterminal{Expression-Stmt}} {\nonterminal{Exp}} {\terminal{)}} {\nonterminal{Stmt}}  \\
+{\nonterminal{IterStmt}} & {\arrow}  &{\terminal{while}} {\terminal{(}} {\nonterminal{Exp}} {\terminal{)}} {\nonterminal{Stmt}}  \\
+ & {\delimit}  &{\terminal{for}} {\terminal{(}} {\nonterminal{ExpressionStmt}} {\nonterminal{ExpressionStmt}} {\terminal{)}} {\nonterminal{Stmt}}  \\
+ & {\delimit}  &{\terminal{for}} {\terminal{(}} {\nonterminal{ExpressionStmt}} {\nonterminal{ExpressionStmt}} {\nonterminal{Exp}} {\terminal{)}} {\nonterminal{Stmt}}  \\
 \end{tabular}\\
 
 \begin{tabular}{lll}
-{\nonterminal{Jump-Stmt}} & {\arrow}  &{\terminal{return}} {\nonterminal{Exp}} {\terminal{;}}  \\
+{\nonterminal{JumpStmt}} & {\arrow}  &{\terminal{return}} {\nonterminal{Exp}} {\terminal{;}}  \\
 \end{tabular}\\
 
 \begin{tabular}{lll}
-{\nonterminal{Print-Stmt}} & {\arrow}  &{\terminal{print}} {\nonterminal{Exp}} {\terminal{;}}  \\
+{\nonterminal{PrintStmt}} & {\arrow}  &{\terminal{print}} {\nonterminal{Exp}} {\terminal{;}}  \\
 \end{tabular}\\
 
 \begin{tabular}{lll}
-{\nonterminal{Init-Stmt}} & {\arrow}  &{\terminal{init}} {\nonterminal{Ident}} {\terminal{[}} {\nonterminal{Exp}} {\terminal{]}} {\terminal{;}}  \\
+{\nonterminal{InitStmt}} & {\arrow}  &{\terminal{init}} {\nonterminal{Ident}} {\terminal{[}} {\nonterminal{Exp}} {\terminal{]}} {\terminal{;}}  \\
 \end{tabular}\\
 
 \begin{tabular}{lll}
@@ -182,7 +182,7 @@ All other symbols are terminals.\\
 \end{tabular}\\
 
 \begin{tabular}{lll}
-{\nonterminal{Exp1}} & {\arrow}  &{\nonterminal{Exp4}} {\nonterminal{Assignment-op}} {\nonterminal{Exp1}}  \\
+{\nonterminal{Exp1}} & {\arrow}  &{\nonterminal{Exp4}} {\nonterminal{AssignmentOp}} {\nonterminal{Exp1}}  \\
  & {\delimit}  &{\nonterminal{Exp2}}  \\
 \end{tabular}\\
 
@@ -245,7 +245,7 @@ All other symbols are terminals.\\
 \end{tabular}\\
 
 \begin{tabular}{lll}
-{\nonterminal{Assignment-op}} & {\arrow}  &{\terminal{{$=$}}}  \\
+{\nonterminal{AssignmentOp}} & {\arrow}  &{\terminal{{$=$}}}  \\
  & {\delimit}  &{\terminal{*{$=$}}}  \\
  & {\delimit}  &{\terminal{/{$=$}}}  \\
  & {\delimit}  &{\terminal{{$+$}{$=$}}}  \\

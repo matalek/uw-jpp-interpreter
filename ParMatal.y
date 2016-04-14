@@ -71,22 +71,22 @@ Ident   :: { Ident }   : L_ident  { Ident $1 }
 Integer :: { Integer } : L_integ  { (read ( $1)) :: Integer }
 
 Program :: { Program }
-Program : ListExternal_declaration { Progr $1 } 
+Program : ListExternalDeclaration { Progr $1 } 
 
 
-ListExternal_declaration :: { [External_declaration] }
-ListExternal_declaration : External_declaration { (:[]) $1 } 
-  | External_declaration ListExternal_declaration { (:) $1 $2 }
+ListExternalDeclaration :: { [ExternalDeclaration] }
+ListExternalDeclaration : ExternalDeclaration { (:[]) $1 } 
+  | ExternalDeclaration ListExternalDeclaration { (:) $1 $2 }
 
 
-External_declaration :: { External_declaration }
-External_declaration : Function_def { Afunc $1 } 
+ExternalDeclaration :: { ExternalDeclaration }
+ExternalDeclaration : FunctionDef { Afunc $1 } 
   | Dec { Global $1 }
-  | Struct_spec { StructDec $1 }
+  | StructSpec { StructDec $1 }
 
 
 Declarator :: { Declarator }
-Declarator : Type_specifier Ident { DVariable $1 $2 } 
+Declarator : TypeSpecifier Ident { DVariable $1 $2 } 
 
 
 Dec :: { Dec }
@@ -98,17 +98,17 @@ ListDec : Dec { (:[]) $1 }
   | Dec ListDec { (:) $1 $2 }
 
 
-Type_specifier :: { Type_specifier }
-Type_specifier : 'void' { TVoid } 
+TypeSpecifier :: { TypeSpecifier }
+TypeSpecifier : 'void' { TVoid } 
   | 'int' { TInt }
   | 'bool' { TBool }
   | Ident { TStruct $1 }
-  | Type_specifier '[]' { TArray $1 }
-  | Type_specifier '<<' Type_specifier '>>' { TMap $1 $3 }
+  | TypeSpecifier '[]' { TArray $1 }
+  | TypeSpecifier '<<' TypeSpecifier '>>' { TMap $1 $3 }
 
 
-Struct_spec :: { Struct_spec }
-Struct_spec : 'struct' Ident '{' ListDec '}' { Struct $2 $4 } 
+StructSpec :: { StructSpec }
+StructSpec : 'struct' Ident '{' ListDec '}' { Struct $2 $4 } 
 
 
 ListIdent :: { [Ident] }
@@ -116,58 +116,58 @@ ListIdent : Ident { (:[]) $1 }
   | Ident ',' ListIdent { (:) $1 $3 }
 
 
-Function_def :: { Function_def }
-Function_def : Declarator '(' ')' Compound_Stmt { FuncNoParams $1 $4 } 
-  | Declarator '(' Parameter_declarations ')' Compound_Stmt { FuncParams $1 $3 $5 }
+FunctionDef :: { FunctionDef }
+FunctionDef : Declarator '(' ')' CompoundStmt { FuncNoParams $1 $4 } 
+  | Declarator '(' ParameterDeclarations ')' CompoundStmt { FuncParams $1 $3 $5 }
 
 
-Parameter_declarations :: { Parameter_declarations }
-Parameter_declarations : Declarator { ParamDec $1 } 
-  | Parameter_declarations ',' Declarator { MoreParamDec $1 $3 }
+ParameterDeclarations :: { ParameterDeclarations }
+ParameterDeclarations : Declarator { ParamDec $1 } 
+  | ParameterDeclarations ',' Declarator { MoreParamDec $1 $3 }
 
 
 Stmt :: { Stmt }
-Stmt : Compound_Stmt { SComp $1 } 
-  | Expression_Stmt { SExpr $1 }
-  | Selection_Stmt { SSel $1 }
-  | Iter_Stmt { SIter $1 }
-  | Jump_Stmt { SJump $1 }
-  | Print_Stmt { SPrint $1 }
-  | Init_Stmt { SInit $1 }
+Stmt : CompoundStmt { SComp $1 } 
+  | ExpressionStmt { SExpr $1 }
+  | SelectionStmt { SSel $1 }
+  | IterStmt { SIter $1 }
+  | JumpStmt { SJump $1 }
+  | PrintStmt { SPrint $1 }
+  | InitStmt { SInit $1 }
 
 
-Compound_Stmt :: { Compound_Stmt }
-Compound_Stmt : '{' '}' { SCompOne } 
+CompoundStmt :: { CompoundStmt }
+CompoundStmt : '{' '}' { SCompOne } 
   | '{' ListStmt '}' { SCompTwo $2 }
   | '{' ListDec ListStmt '}' { SCompThree $2 $3 }
 
 
-Expression_Stmt :: { Expression_Stmt }
-Expression_Stmt : ';' { SExprOne } 
+ExpressionStmt :: { ExpressionStmt }
+ExpressionStmt : ';' { SExprOne } 
   | Exp ';' { SExprTwo $1 }
 
 
-Selection_Stmt :: { Selection_Stmt }
-Selection_Stmt : 'if' '(' Exp ')' Stmt { SSelOne $3 $5 } 
+SelectionStmt :: { SelectionStmt }
+SelectionStmt : 'if' '(' Exp ')' Stmt { SSelOne $3 $5 } 
   | 'if' '(' Exp ')' Stmt 'else' Stmt { SSelTwo $3 $5 $7 }
 
 
-Iter_Stmt :: { Iter_Stmt }
-Iter_Stmt : 'while' '(' Exp ')' Stmt { SIterOne $3 $5 } 
-  | 'for' '(' Expression_Stmt Expression_Stmt ')' Stmt { SIterTwo $3 $4 $6 }
-  | 'for' '(' Expression_Stmt Expression_Stmt Exp ')' Stmt { SIterThree $3 $4 $5 $7 }
+IterStmt :: { IterStmt }
+IterStmt : 'while' '(' Exp ')' Stmt { SIterOne $3 $5 } 
+  | 'for' '(' ExpressionStmt ExpressionStmt ')' Stmt { SIterTwo $3 $4 $6 }
+  | 'for' '(' ExpressionStmt ExpressionStmt Exp ')' Stmt { SIterThree $3 $4 $5 $7 }
 
 
-Jump_Stmt :: { Jump_Stmt }
-Jump_Stmt : 'return' Exp ';' { SJumpOne $2 } 
+JumpStmt :: { JumpStmt }
+JumpStmt : 'return' Exp ';' { SJumpOne $2 } 
 
 
-Print_Stmt :: { Print_Stmt }
-Print_Stmt : 'print' Exp ';' { SPrintOne $2 } 
+PrintStmt :: { PrintStmt }
+PrintStmt : 'print' Exp ';' { SPrintOne $2 } 
 
 
-Init_Stmt :: { Init_Stmt }
-Init_Stmt : 'init' Ident '[' Exp ']' ';' { SInitOne $2 $4 } 
+InitStmt :: { InitStmt }
+InitStmt : 'init' Ident '[' Exp ']' ';' { SInitOne $2 $4 } 
 
 
 ListStmt :: { [Stmt] }
@@ -181,7 +181,7 @@ Exp : Exp ',' Exp1 { EComma $1 $3 }
 
 
 Exp1 :: { Exp }
-Exp1 : Exp4 Assignment_op Exp1 { EAssign $1 $2 $3 } 
+Exp1 : Exp4 AssignmentOp Exp1 { EAssign $1 $2 $3 } 
   | Exp2 { $1 }
 
 
@@ -243,8 +243,8 @@ ListExp1 : Exp1 { (:[]) $1 }
   | Exp1 ',' ListExp1 { (:) $1 $3 }
 
 
-Assignment_op :: { Assignment_op }
-Assignment_op : '=' { Assign } 
+AssignmentOp :: { AssignmentOp }
+AssignmentOp : '=' { Assign } 
   | '*=' { AssignMul }
   | '/=' { AssignDiv }
   | '+=' { AssignAdd }

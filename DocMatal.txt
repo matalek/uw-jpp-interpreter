@@ -50,54 +50,54 @@ The symbols -> (production),  **|**  (union)
 and **eps** (empty rule) belong to the BNF notation. 
 All other symbols are terminals.
 
-  | //Program// | -> | //[External_declaration]// 
-  | //[External_declaration]// | -> | //External_declaration// 
-  |  |  **|**  | //External_declaration// //[External_declaration]// 
-  | //External_declaration// | -> | //Function_def// 
+  | //Program// | -> | //[ExternalDeclaration]// 
+  | //[ExternalDeclaration]// | -> | //ExternalDeclaration// 
+  |  |  **|**  | //ExternalDeclaration// //[ExternalDeclaration]// 
+  | //ExternalDeclaration// | -> | //FunctionDef// 
   |  |  **|**  | //Dec// 
-  |  |  **|**  | //Struct_spec// 
-  | //Declarator// | -> | //Type_specifier// //Ident// 
+  |  |  **|**  | //StructSpec// 
+  | //Declarator// | -> | //TypeSpecifier// //Ident// 
   | //Dec// | -> | //Declarator// ``;`` 
   | //[Dec]// | -> | //Dec// 
   |  |  **|**  | //Dec// //[Dec]// 
-  | //Type_specifier// | -> | ``void`` 
+  | //TypeSpecifier// | -> | ``void`` 
   |  |  **|**  | ``int`` 
   |  |  **|**  | ``bool`` 
   |  |  **|**  | //Ident// 
-  |  |  **|**  | //Type_specifier// ``[]`` 
-  |  |  **|**  | //Type_specifier// ``<<`` //Type_specifier// ``>>`` 
-  | //Struct_spec// | -> | ``struct`` //Ident// ``{`` //[Dec]// ``}`` 
+  |  |  **|**  | //TypeSpecifier// ``[]`` 
+  |  |  **|**  | //TypeSpecifier// ``<<`` //TypeSpecifier// ``>>`` 
+  | //StructSpec// | -> | ``struct`` //Ident// ``{`` //[Dec]// ``}`` 
   | //[Ident]// | -> | //Ident// 
   |  |  **|**  | //Ident// ``,`` //[Ident]// 
-  | //Function_def// | -> | //Declarator// ``(`` ``)`` //Compound_Stmt// 
-  |  |  **|**  | //Declarator// ``(`` //Parameter_declarations// ``)`` //Compound_Stmt// 
-  | //Parameter_declarations// | -> | //Declarator// 
-  |  |  **|**  | //Parameter_declarations// ``,`` //Declarator// 
-  | //Stmt// | -> | //Compound_Stmt// 
-  |  |  **|**  | //Expression_Stmt// 
-  |  |  **|**  | //Selection_Stmt// 
-  |  |  **|**  | //Iter_Stmt// 
-  |  |  **|**  | //Jump_Stmt// 
-  |  |  **|**  | //Print_Stmt// 
-  |  |  **|**  | //Init_Stmt// 
-  | //Compound_Stmt// | -> | ``{`` ``}`` 
+  | //FunctionDef// | -> | //Declarator// ``(`` ``)`` //CompoundStmt// 
+  |  |  **|**  | //Declarator// ``(`` //ParameterDeclarations// ``)`` //CompoundStmt// 
+  | //ParameterDeclarations// | -> | //Declarator// 
+  |  |  **|**  | //ParameterDeclarations// ``,`` //Declarator// 
+  | //Stmt// | -> | //CompoundStmt// 
+  |  |  **|**  | //ExpressionStmt// 
+  |  |  **|**  | //SelectionStmt// 
+  |  |  **|**  | //IterStmt// 
+  |  |  **|**  | //JumpStmt// 
+  |  |  **|**  | //PrintStmt// 
+  |  |  **|**  | //InitStmt// 
+  | //CompoundStmt// | -> | ``{`` ``}`` 
   |  |  **|**  | ``{`` //[Stmt]// ``}`` 
   |  |  **|**  | ``{`` //[Dec]// //[Stmt]// ``}`` 
-  | //Expression_Stmt// | -> | ``;`` 
+  | //ExpressionStmt// | -> | ``;`` 
   |  |  **|**  | //Exp// ``;`` 
-  | //Selection_Stmt// | -> | ``if`` ``(`` //Exp// ``)`` //Stmt// 
+  | //SelectionStmt// | -> | ``if`` ``(`` //Exp// ``)`` //Stmt// 
   |  |  **|**  | ``if`` ``(`` //Exp// ``)`` //Stmt// ``else`` //Stmt// 
-  | //Iter_Stmt// | -> | ``while`` ``(`` //Exp// ``)`` //Stmt// 
-  |  |  **|**  | ``for`` ``(`` //Expression_Stmt// //Expression_Stmt// ``)`` //Stmt// 
-  |  |  **|**  | ``for`` ``(`` //Expression_Stmt// //Expression_Stmt// //Exp// ``)`` //Stmt// 
-  | //Jump_Stmt// | -> | ``return`` //Exp// ``;`` 
-  | //Print_Stmt// | -> | ``print`` //Exp// ``;`` 
-  | //Init_Stmt// | -> | ``init`` //Ident// ``[`` //Exp// ``]`` ``;`` 
+  | //IterStmt// | -> | ``while`` ``(`` //Exp// ``)`` //Stmt// 
+  |  |  **|**  | ``for`` ``(`` //ExpressionStmt// //ExpressionStmt// ``)`` //Stmt// 
+  |  |  **|**  | ``for`` ``(`` //ExpressionStmt// //ExpressionStmt// //Exp// ``)`` //Stmt// 
+  | //JumpStmt// | -> | ``return`` //Exp// ``;`` 
+  | //PrintStmt// | -> | ``print`` //Exp// ``;`` 
+  | //InitStmt// | -> | ``init`` //Ident// ``[`` //Exp// ``]`` ``;`` 
   | //[Stmt]// | -> | //Stmt// 
   |  |  **|**  | //Stmt// //[Stmt]// 
   | //Exp// | -> | //Exp// ``,`` //Exp1// 
   |  |  **|**  | //Exp1// 
-  | //Exp1// | -> | //Exp4// //Assignment_op// //Exp1// 
+  | //Exp1// | -> | //Exp4// //AssignmentOp// //Exp1// 
   |  |  **|**  | //Exp2// 
   | //Exp2// | -> | //Exp2// ``==`` //Exp3// 
   |  |  **|**  | //Exp2// ``!=`` //Exp3// 
@@ -130,7 +130,7 @@ All other symbols are terminals.
   |  |  **|**  | ``false`` 
   | //[Exp1]// | -> | //Exp1// 
   |  |  **|**  | //Exp1// ``,`` //[Exp1]// 
-  | //Assignment_op// | -> | ``=`` 
+  | //AssignmentOp// | -> | ``=`` 
   |  |  **|**  | ``*=`` 
   |  |  **|**  | ``/=`` 
   |  |  **|**  | ``+=`` 

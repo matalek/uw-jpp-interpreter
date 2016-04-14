@@ -16,19 +16,19 @@ transIdent x = case x of
 
 transProgram :: Program -> Result
 transProgram x = case x of
-  Progr external_declarations  -> failure x
+  Progr externaldeclarations  -> failure x
 
 
-transExternal_declaration :: External_declaration -> Result
-transExternal_declaration x = case x of
-  Afunc function_def  -> failure x
+transExternalDeclaration :: ExternalDeclaration -> Result
+transExternalDeclaration x = case x of
+  Afunc functiondef  -> failure x
   Global dec  -> failure x
-  StructDec struct_spec  -> failure x
+  StructDec structspec  -> failure x
 
 
 transDeclarator :: Declarator -> Result
 transDeclarator x = case x of
-  DVariable type_specifier id  -> failure x
+  DVariable typespecifier id  -> failure x
 
 
 transDec :: Dec -> Result
@@ -36,89 +36,89 @@ transDec x = case x of
   Declaration declarator  -> failure x
 
 
-transType_specifier :: Type_specifier -> Result
-transType_specifier x = case x of
+transTypeSpecifier :: TypeSpecifier -> Result
+transTypeSpecifier x = case x of
   TVoid  -> failure x
   TInt  -> failure x
   TBool  -> failure x
   TStruct id  -> failure x
-  TArray type_specifier  -> failure x
-  TMap type_specifier0 type_specifier  -> failure x
+  TArray typespecifier  -> failure x
+  TMap typespecifier0 typespecifier  -> failure x
 
 
-transStruct_spec :: Struct_spec -> Result
-transStruct_spec x = case x of
+transStructSpec :: StructSpec -> Result
+transStructSpec x = case x of
   Struct id decs  -> failure x
 
 
-transFunction_def :: Function_def -> Result
-transFunction_def x = case x of
-  FuncNoParams declarator compound_stmt  -> failure x
-  FuncParams declarator parameter_declarations compound_stmt  -> failure x
+transFunctionDef :: FunctionDef -> Result
+transFunctionDef x = case x of
+  FuncNoParams declarator compoundstmt  -> failure x
+  FuncParams declarator parameterdeclarations compoundstmt  -> failure x
 
 
-transParameter_declarations :: Parameter_declarations -> Result
-transParameter_declarations x = case x of
+transParameterDeclarations :: ParameterDeclarations -> Result
+transParameterDeclarations x = case x of
   ParamDec declarator  -> failure x
-  MoreParamDec parameter_declarations declarator  -> failure x
+  MoreParamDec parameterdeclarations declarator  -> failure x
 
 
 transStmt :: Stmt -> Result
 transStmt x = case x of
-  SComp compound_stmt  -> failure x
-  SExpr expression_stmt  -> failure x
-  SSel selection_stmt  -> failure x
-  SIter iter_stmt  -> failure x
-  SJump jump_stmt  -> failure x
-  SPrint print_stmt  -> failure x
-  SInit init_stmt  -> failure x
+  SComp compoundstmt  -> failure x
+  SExpr expressionstmt  -> failure x
+  SSel selectionstmt  -> failure x
+  SIter iterstmt  -> failure x
+  SJump jumpstmt  -> failure x
+  SPrint printstmt  -> failure x
+  SInit initstmt  -> failure x
 
 
-transCompound_Stmt :: Compound_Stmt -> Result
-transCompound_Stmt x = case x of
+transCompoundStmt :: CompoundStmt -> Result
+transCompoundStmt x = case x of
   SCompOne  -> failure x
   SCompTwo stmts  -> failure x
   SCompThree decs stmts  -> failure x
 
 
-transExpression_Stmt :: Expression_Stmt -> Result
-transExpression_Stmt x = case x of
+transExpressionStmt :: ExpressionStmt -> Result
+transExpressionStmt x = case x of
   SExprOne  -> failure x
   SExprTwo exp  -> failure x
 
 
-transSelection_Stmt :: Selection_Stmt -> Result
-transSelection_Stmt x = case x of
+transSelectionStmt :: SelectionStmt -> Result
+transSelectionStmt x = case x of
   SSelOne exp stmt  -> failure x
   SSelTwo exp stmt0 stmt  -> failure x
 
 
-transIter_Stmt :: Iter_Stmt -> Result
-transIter_Stmt x = case x of
+transIterStmt :: IterStmt -> Result
+transIterStmt x = case x of
   SIterOne exp stmt  -> failure x
-  SIterTwo expression_stmt0 expression_stmt stmt  -> failure x
-  SIterThree expression_stmt0 expression_stmt exp stmt  -> failure x
+  SIterTwo expressionstmt0 expressionstmt stmt  -> failure x
+  SIterThree expressionstmt0 expressionstmt exp stmt  -> failure x
 
 
-transJump_Stmt :: Jump_Stmt -> Result
-transJump_Stmt x = case x of
+transJumpStmt :: JumpStmt -> Result
+transJumpStmt x = case x of
   SJumpOne exp  -> failure x
 
 
-transPrint_Stmt :: Print_Stmt -> Result
-transPrint_Stmt x = case x of
+transPrintStmt :: PrintStmt -> Result
+transPrintStmt x = case x of
   SPrintOne exp  -> failure x
 
 
-transInit_Stmt :: Init_Stmt -> Result
-transInit_Stmt x = case x of
+transInitStmt :: InitStmt -> Result
+transInitStmt x = case x of
   SInitOne id exp  -> failure x
 
 
 transExp :: Exp -> Result
 transExp x = case x of
   EComma exp0 exp  -> failure x
-  EAssign exp0 assignment_op exp  -> failure x
+  EAssign exp0 assignmentop exp  -> failure x
   EEq exp0 exp  -> failure x
   ENeq exp0 exp  -> failure x
   ELthen exp0 exp  -> failure x
@@ -147,8 +147,8 @@ transConstant x = case x of
   EFalse  -> failure x
 
 
-transAssignment_op :: Assignment_op -> Result
-transAssignment_op x = case x of
+transAssignmentOp :: AssignmentOp -> Result
+transAssignmentOp x = case x of
   Assign  -> failure x
   AssignMul  -> failure x
   AssignDiv  -> failure x

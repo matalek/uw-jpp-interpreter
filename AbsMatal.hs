@@ -5,93 +5,93 @@ module AbsMatal where
 
 newtype Ident = Ident String deriving (Eq,Ord,Show)
 data Program =
-   Progr [External_declaration]
+   Progr [ExternalDeclaration]
   deriving (Eq,Ord,Show)
 
-data External_declaration =
-   Afunc Function_def
+data ExternalDeclaration =
+   Afunc FunctionDef
  | Global Dec
- | StructDec Struct_spec
+ | StructDec StructSpec
   deriving (Eq,Ord,Show)
 
 data Declarator =
-   DVariable Type_specifier Ident
+   DVariable TypeSpecifier Ident
   deriving (Eq,Ord,Show)
 
 data Dec =
    Declaration Declarator
   deriving (Eq,Ord,Show)
 
-data Type_specifier =
+data TypeSpecifier =
    TVoid
  | TInt
  | TBool
  | TStruct Ident
- | TArray Type_specifier
- | TMap Type_specifier Type_specifier
+ | TArray TypeSpecifier
+ | TMap TypeSpecifier TypeSpecifier
   deriving (Eq,Ord,Show)
 
-data Struct_spec =
+data StructSpec =
    Struct Ident [Dec]
   deriving (Eq,Ord,Show)
 
-data Function_def =
-   FuncNoParams Declarator Compound_Stmt
- | FuncParams Declarator Parameter_declarations Compound_Stmt
+data FunctionDef =
+   FuncNoParams Declarator CompoundStmt
+ | FuncParams Declarator ParameterDeclarations CompoundStmt
   deriving (Eq,Ord,Show)
 
-data Parameter_declarations =
+data ParameterDeclarations =
    ParamDec Declarator
- | MoreParamDec Parameter_declarations Declarator
+ | MoreParamDec ParameterDeclarations Declarator
   deriving (Eq,Ord,Show)
 
 data Stmt =
-   SComp Compound_Stmt
- | SExpr Expression_Stmt
- | SSel Selection_Stmt
- | SIter Iter_Stmt
- | SJump Jump_Stmt
- | SPrint Print_Stmt
- | SInit Init_Stmt
+   SComp CompoundStmt
+ | SExpr ExpressionStmt
+ | SSel SelectionStmt
+ | SIter IterStmt
+ | SJump JumpStmt
+ | SPrint PrintStmt
+ | SInit InitStmt
   deriving (Eq,Ord,Show)
 
-data Compound_Stmt =
+data CompoundStmt =
    SCompOne
  | SCompTwo [Stmt]
  | SCompThree [Dec] [Stmt]
   deriving (Eq,Ord,Show)
 
-data Expression_Stmt =
+data ExpressionStmt =
    SExprOne
  | SExprTwo Exp
   deriving (Eq,Ord,Show)
 
-data Selection_Stmt =
+data SelectionStmt =
    SSelOne Exp Stmt
  | SSelTwo Exp Stmt Stmt
   deriving (Eq,Ord,Show)
 
-data Iter_Stmt =
+data IterStmt =
    SIterOne Exp Stmt
- | SIterTwo Expression_Stmt Expression_Stmt Stmt
- | SIterThree Expression_Stmt Expression_Stmt Exp Stmt
+ | SIterTwo ExpressionStmt ExpressionStmt Stmt
+ | SIterThree ExpressionStmt ExpressionStmt Exp Stmt
   deriving (Eq,Ord,Show)
 
-data Jump_Stmt =
+data JumpStmt =
    SJumpOne Exp
   deriving (Eq,Ord,Show)
 
-data Print_Stmt =
+data PrintStmt =
    SPrintOne Exp
   deriving (Eq,Ord,Show)
 
-data Init_Stmt =
+data InitStmt =
    SInitOne Ident Exp
   deriving (Eq,Ord,Show)
 
 data Exp =
    EComma Exp Exp
- | EAssign Exp Assignment_op Exp
+ | EAssign Exp AssignmentOp Exp
  | EEq Exp Exp
  | ENeq Exp Exp
  | ELthen Exp Exp
@@ -119,7 +119,7 @@ data Constant =
  | EFalse
   deriving (Eq,Ord,Show)
 
-data Assignment_op =
+data AssignmentOp =
    Assign
  | AssignMul
  | AssignDiv

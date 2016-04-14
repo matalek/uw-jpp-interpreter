@@ -61,13 +61,14 @@ transStmts (s:ss) = do
 -- Statement execution
 transStmt :: Stmt -> Interpreter ()
 transStmt x = case x of
-  SComp compound_stmt  -> transCompound_Stmt compound_stmt
-  SExpr expression_stmt  -> failure x
-  SSel selection_stmt  -> failure x
-  SIter iter_stmt  -> failure x
-  SJump jump_stmt  -> failure x
-  SPrint print_stmt  -> failure x
-  SInit init_stmt  -> failure x
+  SComp compoundStmt  -> transCompoundStmt compoundStmt
+  SExpr expressionStmt  -> failure x
+  SSel selectionStmt  -> failure x
+  SIter iterStmt  -> failure x
+  SJump jumpStmt  -> failure x
+  SPrint printStmt  -> failure x
+  SInit initStmt  -> failure x
+
 
 -- Expression statements
 transStmt (SExpr SExprOne) = return ()
@@ -91,9 +92,9 @@ transStmt (SPrint (SPrintOne  e)) = do
   lift $ lift $ putStrLn $ showVal val
 
 -- Compound statements
-transCompound_Stmt :: Compound_Stmt -> Interpreter ()
-transCompound_Stmt SCompOne = return ()
-transCompound_Stmt (SCompTwo s) = transStmts s
+transCompoundStmt :: CompoundStmt -> Interpreter ()
+transCompoundStmt SCompOne = return ()
+transCompoundStmt (SCompTwo s) = transStmts s
 
 
 -- Expression evaluation
