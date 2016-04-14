@@ -32,6 +32,11 @@ getVal v = do
   loc <- getLoc v
   return $ store ! loc
 
+setVal :: Var -> Val -> Interpreter ()
+setVal var val = do
+  loc <- getLoc var
+  modify $ insert loc val
+
 showVal :: Val -> String
 showVal (Int i) = show i
 showVal (Bool b)
@@ -97,7 +102,9 @@ transPrintStmt (SPrintOne  e) = do
 transCompoundStmt :: CompoundStmt -> Interpreter ()
 transCompoundStmt SCompOne = return ()
 transCompoundStmt (SCompTwo s) = transStmts s
-
+transCompoundStmt (SCompThree ds ss) = do
+  newEnv <- transDec ds
+  local (\_ -> newEnv) $ transStmts ss
 
 -- Expression evaluation
 transExp :: Exp -> Interpreter Val
@@ -108,6 +115,14 @@ transExp (EConst c) = case c of
   EFalse -> return $ Bool False
 
 transExp (EVar v) = do getVal v
+
+transExp (EAssign (EVar v) op e) = do
+  val <- transExp e
+  let newVal =
+        case op of
+          Assign -> val
+  setVal v newVal
+  return newVal
 
 transExp (EPlus e1 e2) = evalBinOpInt e1 e2 (+)
 transExp (EMinus e1 e2) = evalBinOpInt e1 e2 (-)
