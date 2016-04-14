@@ -1,11 +1,11 @@
 all:
-	happy -gca Parmatal.y
-	alex -g Lexmatal.x
-	latex Docmatal.tex; dvips Docmatal.dvi -o Docmatal.ps
-	ghc --make Testmatal.hs -o Testmatal
+	happy -gca ParMatal.y
+	alex -g LexMatal.x
+	latex DocMatal.tex; dvips DocMatal.dvi -o DocMatal.ps
+	ghc --make TestMatal.hs -o TestMatal
 clean:
 	-rm -f *.log *.aux *.hi *.o *.dvi
-	-rm -f Docmatal.ps
+	-rm -f DocMatal.ps
 distclean: clean
-	-rm -f Docmatal.* Lexmatal.* Parmatal.* Layoutmatal.* Skelmatal.* Printmatal.* Testmatal.* Absmatal.* Testmatal ErrM.* SharedString.* matal.dtd XMLmatal.* Makefile*
+	-rm -f DocMatal.* LexMatal.* ParMatal.* LayoutMatal.* SkelMatal.* PrintMatal.* TestMatal.* AbsMatal.* TestMatal ErrM.* SharedString.* Matal.dtd XMLMatal.* Makefile*
 

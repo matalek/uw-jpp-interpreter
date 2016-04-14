@@ -5,11 +5,11 @@ module Main where
 import System.IO ( stdin, hGetContents )
 import System.Environment ( getArgs, getProgName )
 
-import Lexmatal
-import Parmatal
-import Skelmatal
-import Printmatal
-import Absmatal
+import LexMatal
+import ParMatal
+import SkelMatal
+import PrintMatal
+import AbsMatal
 
 
 
