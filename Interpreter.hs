@@ -62,32 +62,34 @@ transStmts (s:ss) = do
 transStmt :: Stmt -> Interpreter ()
 transStmt x = case x of
   SComp compoundStmt  -> transCompoundStmt compoundStmt
-  SExpr expressionStmt  -> failure x
+  SExpr expressionStmt  -> transExpressionStmt expressionStmt
   SSel selectionStmt  -> failure x
-  SIter iterStmt  -> failure x
+  SIter iterStmt  -> transIterStmt iterStmt
   SJump jumpStmt  -> failure x
-  SPrint printStmt  -> failure x
+  SPrint printStmt  -> transPrintStmt printStmt
   SInit initStmt  -> failure x
 
 
 -- Expression statements
-transStmt (SExpr SExprOne) = return ()
-transStmt (SExpr (SExprTwo e)) = do
+transExpressionStmt :: ExpressionStmt -> Interpreter ()
+transExpressionStmt SExprOne = return ()
+transExpressionStmt (SExprTwo e) = do
   _ <- transExp e
   return ()
 
-
 -- Iter statements
-transStmt w@(SIter (SIterOne e s)) = do
+transIterStmt :: IterStmt -> Interpreter ()
+transIterStmt w@(SIterOne e s) = do
   val <- transExp e
   case val of
-    (Bool True) -> transStmts [s, w]
+    (Bool True) -> transStmts [s, (SIter w)]
     _ -> return ()                          
 
 --transStmt (SIter (SIterTwo es1 es2 e s)) =
 
 -- Print statements
-transStmt (SPrint (SPrintOne  e)) = do
+transPrintStmt :: PrintStmt -> Interpreter ()
+transPrintStmt (SPrintOne  e) = do
   val <- transExp e
   lift $ lift $ putStrLn $ showVal val
 
