@@ -1,8 +1,8 @@
 module Main where
   
-import Lexmatal
-import Parmatal
-import Absmatal
+import LexMatal
+import ParMatal
+import AbsMatal
 import Interpreter
   
 import ErrM
@@ -13,5 +13,5 @@ main = do
   putStrLn ""
   
 exec input = 
-  let Ok s = pStm (myLexer input) 
+  let Ok s = pStmt (myLexer input) 
   in interpret s

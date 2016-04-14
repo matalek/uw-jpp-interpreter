@@ -1,14 +1,14 @@
 module Interpreter where
 
-import Absmatal
+import AbsMatal
 import Control.Monad.State
 import Control.Monad.Reader
 import Control.Monad.Identity
 import Data.Map
 
-type Var = String
+type Var = Ident
 type Loc = Int
-data Val = Int Int
+data Val = Int Int | Bool Bool
 type Store = Map Loc Val
 type Env = Map Var Loc
 
@@ -25,6 +25,12 @@ getVal v = do
   loc <- getLoc v
   return $ store ! loc
 
+showVal :: Val -> String
+showVal (Int i) = show i
+showVal (Bool b)
+  | b = "true"
+  | otherwise = "false"
+
 alloc :: Interpreter Loc
 alloc = do
   store <- get
@@ -34,15 +40,77 @@ alloc = do
 
 
 -- Right now only for statements
-interpret :: Stm -> IO ()
+interpret :: Stmt -> IO ()
 interpret s = do
-  runReaderT (execStateT (transStm s) empty) empty
+  runReaderT (execStateT (transStmt s) empty) empty
   return ()
 
-transStm :: Stm -> Interpreter ()
-transStm (PrintS (Sprint (Econst (Eint i)))) = do
-             lift $ lift $ print i
+transStmts :: [Stmt] -> Interpreter ()
+transStmts [] = return ()
+transStmts (s:ss) = do
+  transStmt s
+  transStmts ss
+
+-- Statement execution
+transStmt :: Stmt -> Interpreter ()
+
+-- Expression statements
+transStmt (SExpr SExprOne) = return ()
+transStmt (SExpr (SExprTwo e)) = do
+  _ <- transExp e
+  return ()
 
 
+-- Iter statements
+transStmt w@(SIter (SIterOne e s)) = do
+  val <- transExp e
+  case val of
+    (Bool True) -> transStmts [s, w]
+    _ -> return ()                          
+
+--transStmt (SIter (SIterTwo es1 es2 e s)) =
+  
+  
+
+-- Print statements
+transStmt (SPrint (SPrintOne  e)) = do
+  val <- transExp e
+  lift $ lift $ putStrLn $ showVal val
+
+-- Compound statements
+transStmt (SComp SCompOne) = return ()
+transStmt (SComp (SCompTwo s)) = transStmts s
+
+
+-- Expression evaluation
 transExp :: Exp -> Interpreter Val
-transExp _ = error ""
+
+transExp (EConst c) = case c of
+  (EInt i) -> return $ Int (fromInteger i)
+  ETrue -> return $ Bool True
+  EFalse -> return $ Bool False
+
+transExp (EVar v) = do getVal v
+
+transExp (EPlus e1 e2) = evalBinOpInt e1 e2 (+)
+transExp (EMinus e1 e2) = evalBinOpInt e1 e2 (-)
+transExp (ETimes e1 e2) = evalBinOpInt e1 e2 (*)
+transExp (EDiv e1 e2) = evalBinOpInt e1 e2 div
+
+transExp (ELthen e1 e2) = evalBinOpBool e1 e2 (<)
+transExp (EGrthen e1 e2) = evalBinOpBool e1 e2 (>)
+transExp (ELe e1 e2) = evalBinOpBool e1 e2 (<=)
+transExp (EGe e1 e2) = evalBinOpBool e1 e2 (>=)
+
+evalBinOpInt :: Exp -> Exp -> (Int -> Int -> Int) -> Interpreter Val
+evalBinOpInt e1 e2 op = do
+  (Int val1) <- transExp e1
+  (Int val2) <- transExp e2
+  return $ Int $ op val1 val2
+
+evalBinOpBool :: Exp -> Exp -> (Int -> Int -> Bool) -> Interpreter Val
+evalBinOpBool e1 e2 op = do
+  (Int val1) <- transExp e1
+  (Int val2) <- transExp e2
+  return $ Bool $ op val1 val2
+
