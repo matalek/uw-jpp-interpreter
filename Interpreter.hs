@@ -5,6 +5,7 @@ import Control.Monad.State
 import Control.Monad.Reader
 import Control.Monad.Identity
 import Data.Map
+import ErrM
 
 type Var = Ident
 type Loc = Int
@@ -14,10 +15,16 @@ type Env = Map Var Loc
 
 type Interpreter a = StateT Store (ReaderT Env IO) a
 
+failure :: Show a => a -> Interpreter ()
+failure x = error $ "Undefined case: " ++ show x
+
 getLoc :: Var -> Interpreter Loc
 getLoc v = do
   env <- ask
   return $ env ! v
+
+setLoc :: Var -> Loc -> Env -> Env
+setLoc = insert
 
 getVal :: Var -> Interpreter Val
 getVal v = do
@@ -53,6 +60,14 @@ transStmts (s:ss) = do
 
 -- Statement execution
 transStmt :: Stmt -> Interpreter ()
+transStmt x = case x of
+  SComp compound_stmt  -> transCompound_Stmt compound_stmt
+  SExpr expression_stmt  -> failure x
+  SSel selection_stmt  -> failure x
+  SIter iter_stmt  -> failure x
+  SJump jump_stmt  -> failure x
+  SPrint print_stmt  -> failure x
+  SInit init_stmt  -> failure x
 
 -- Expression statements
 transStmt (SExpr SExprOne) = return ()
@@ -69,8 +84,6 @@ transStmt w@(SIter (SIterOne e s)) = do
     _ -> return ()                          
 
 --transStmt (SIter (SIterTwo es1 es2 e s)) =
-  
-  
 
 -- Print statements
 transStmt (SPrint (SPrintOne  e)) = do
@@ -78,8 +91,9 @@ transStmt (SPrint (SPrintOne  e)) = do
   lift $ lift $ putStrLn $ showVal val
 
 -- Compound statements
-transStmt (SComp SCompOne) = return ()
-transStmt (SComp (SCompTwo s)) = transStmts s
+transCompound_Stmt :: Compound_Stmt -> Interpreter ()
+transCompound_Stmt SCompOne = return ()
+transCompound_Stmt (SCompTwo s) = transStmts s
 
 
 -- Expression evaluation
@@ -114,3 +128,12 @@ evalBinOpBool e1 e2 op = do
   (Int val2) <- transExp e2
   return $ Bool $ op val1 val2
 
+-- Declaration evaluations
+transDec :: [Dec] -> Interpreter Env
+
+transDec [] = ask
+transDec ((Declaration (DVariable TInt v)):ds) = do
+  loc <- alloc
+  modify (\store -> insert loc (Int 0) store)
+  newEnv <- local (setLoc v loc) $ transDec ds
+  return newEnv
