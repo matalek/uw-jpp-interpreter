@@ -90,7 +90,16 @@ transIterStmt w@(SIterOne e s) = do
     (Bool True) -> transStmts [s, (SIter w)]
     _ -> return ()                          
 
---transStmt (SIter (SIterTwo es1 es2 e s)) =
+transIterStmt (SIterTwo es1 es2 s) =
+  transIterStmt (SIterThree es1 es2 (EConst ETrue) s)
+
+transIterStmt (SIterThree es1 es2 e s) = do
+  let cond =
+        case es2 of
+          SExprOne -> EConst ETrue
+          (SExprTwo c) -> c
+  let loop = SComp (SCompTwo [s, (SExpr (SExprTwo e))])
+  transStmts [(SExpr es1), (SIter (SIterOne cond loop))]
 
 -- Print statements
 transPrintStmt :: PrintStmt -> Interpreter ()
