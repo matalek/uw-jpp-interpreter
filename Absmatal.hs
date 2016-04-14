@@ -15,7 +15,7 @@ data External_declaration =
   deriving (Eq,Ord,Show)
 
 data Declarator =
-   Dvariable Type_specifier Ident
+   DVariable Type_specifier Ident
   deriving (Eq,Ord,Show)
 
 data Dec =
@@ -23,12 +23,12 @@ data Dec =
   deriving (Eq,Ord,Show)
 
 data Type_specifier =
-   Tvoid
- | Tint
- | Tbool
- | Tstruct Ident
- | Tarray Type_specifier
- | Tmap Type_specifier Type_specifier
+   TVoid
+ | TInt
+ | TBool
+ | TStruct Ident
+ | TArray Type_specifier
+ | TMap Type_specifier Type_specifier
   deriving (Eq,Ord,Show)
 
 data Struct_spec =
@@ -36,8 +36,8 @@ data Struct_spec =
   deriving (Eq,Ord,Show)
 
 data Function_def =
-   FuncNoParams Declarator Compound_stm
- | FuncParams Declarator Parameter_declarations Compound_stm
+   FuncNoParams Declarator Compound_Stmt
+ | FuncParams Declarator Parameter_declarations Compound_Stmt
   deriving (Eq,Ord,Show)
 
 data Parameter_declarations =
@@ -45,78 +45,78 @@ data Parameter_declarations =
  | MoreParamDec Parameter_declarations Declarator
   deriving (Eq,Ord,Show)
 
-data Stm =
-   CompS Compound_stm
- | ExprS Expression_stm
- | SelS Selection_stm
- | IterS Iter_stm
- | JumpS Jump_stm
- | PrintS Print_stm
- | InitS Init_stm
+data Stmt =
+   SComp Compound_Stmt
+ | SExpr Expression_Stmt
+ | SSel Selection_Stmt
+ | SIter Iter_Stmt
+ | SJump Jump_Stmt
+ | SPrint Print_Stmt
+ | SInit Init_Stmt
   deriving (Eq,Ord,Show)
 
-data Compound_stm =
-   ScompOne
- | ScompTwo [Stm]
- | ScompThree [Dec] [Stm]
+data Compound_Stmt =
+   SCompOne
+ | SCompTwo [Stmt]
+ | SCompThree [Dec] [Stmt]
   deriving (Eq,Ord,Show)
 
-data Expression_stm =
-   SexprOne
- | SexprTwo Exp
+data Expression_Stmt =
+   SExprOne
+ | SExprTwo Exp
   deriving (Eq,Ord,Show)
 
-data Selection_stm =
-   SselOne Exp Stm
- | SselTwo Exp Stm Stm
+data Selection_Stmt =
+   SSelOne Exp Stmt
+ | SSelTwo Exp Stmt Stmt
   deriving (Eq,Ord,Show)
 
-data Iter_stm =
-   SiterOne Exp Stm
- | SiterThree Expression_stm Expression_stm Stm
- | SiterFour Expression_stm Expression_stm Exp Stm
+data Iter_Stmt =
+   SIterOne Exp Stmt
+ | SIterTwo Expression_Stmt Expression_Stmt Stmt
+ | SIterThree Expression_Stmt Expression_Stmt Exp Stmt
   deriving (Eq,Ord,Show)
 
-data Jump_stm =
-   SjumpFive Exp
+data Jump_Stmt =
+   SJumpOne Exp
   deriving (Eq,Ord,Show)
 
-data Print_stm =
-   Sprint Exp
+data Print_Stmt =
+   SPrintOne Exp
   deriving (Eq,Ord,Show)
 
-data Init_stm =
-   Sinit Ident Exp
+data Init_Stmt =
+   SInitOne Ident Exp
   deriving (Eq,Ord,Show)
 
 data Exp =
-   Ecomma Exp Exp
- | Eassign Exp Assignment_op Exp
- | Eeq Exp Exp
- | Eneq Exp Exp
- | Elthen Exp Exp
- | Egrthen Exp Exp
- | Ele Exp Exp
- | Ege Exp Exp
- | Eplus Exp Exp
- | Eminus Exp Exp
- | Etimes Exp Exp
- | Ediv Exp Exp
- | Eselect Exp Ident
- | Earray Exp Exp
- | Efunk Exp
- | Efunkpar Exp [Exp]
- | Emap Exp Exp
- | Epostinc Exp
- | Epostdec Exp
- | Evar Ident
- | Econst Constant
+   EComma Exp Exp
+ | EAssign Exp Assignment_op Exp
+ | EEq Exp Exp
+ | ENeq Exp Exp
+ | ELthen Exp Exp
+ | EGrthen Exp Exp
+ | ELe Exp Exp
+ | EGe Exp Exp
+ | EPlus Exp Exp
+ | EMinus Exp Exp
+ | ETimes Exp Exp
+ | EDiv Exp Exp
+ | ESelect Exp Ident
+ | EArray Exp Exp
+ | EFunk Exp
+ | EFunkPar Exp [Exp]
+ | EMap Exp Exp
+ | EPostInc Exp
+ | EPostDec Exp
+ | EVar Ident
+ | EConst Constant
   deriving (Eq,Ord,Show)
 
 data Constant =
-   Eint Integer
- | Etrue
- | Efalse
+   EInt Integer
+ | ETrue
+ | EFalse
   deriving (Eq,Ord,Show)
 
 data Assignment_op =

@@ -1,7 +1,7 @@
 -- Aleksander Matusiak
 -- EBNF grammar of Matal language
 
-entrypoints Program, Stm, Exp ;
+entrypoints Program, Stmt, Exp ;
 
 Progr.  Program ::= [External_declaration] ;
 
@@ -12,87 +12,87 @@ Afunc.      External_declaration ::= Function_def ;
 Global.     External_declaration ::= Dec ;
 StructDec.  External_declaration ::= Struct_spec;
 
-Dvariable.      Declarator ::= Type_specifier Ident ;
+DVariable.      Declarator ::= Type_specifier Ident ;
 
 Declaration.     Dec ::= Declarator ";";
 
 (:[]).   [Dec] ::= Dec ;
 (:).     [Dec] ::= Dec [Dec] ;
 
-Tvoid.        Type_specifier ::= "void";
-Tint.         Type_specifier ::= "int";
-Tbool.        Type_specifier ::= "bool";
-Tstruct.      Type_specifier ::= Ident;
-Tarray.       Type_specifier ::= Type_specifier "[]" ;
-Tmap.         Type_specifier ::= Type_specifier "<<" Type_specifier ">>" ;
+TVoid.        Type_specifier ::= "void";
+TInt.         Type_specifier ::= "int";
+TBool.        Type_specifier ::= "bool";
+TStruct.      Type_specifier ::= Ident;
+TArray.       Type_specifier ::= Type_specifier "[]" ;
+TMap.         Type_specifier ::= Type_specifier "<<" Type_specifier ">>" ;
 
 Struct.      Struct_spec ::= "struct" Ident "{" [Dec] "}" ;
 
 (:[]).   [Ident] ::= Ident ;
 (:).     [Ident] ::= Ident "," [Ident] ;
 
-FuncNoParams.   Function_def ::= Declarator "(" ")" Compound_stm;
-FuncParams.   Function_def ::= Declarator "(" Parameter_declarations ")" Compound_stm;
+FuncNoParams.   Function_def ::= Declarator "(" ")" Compound_Stmt;
+FuncParams.   Function_def ::= Declarator "(" Parameter_declarations ")" Compound_Stmt;
 
 ParamDec.     Parameter_declarations ::= Declarator ;
 MoreParamDec. Parameter_declarations ::= Parameter_declarations "," Declarator ;
 
-CompS.    Stm ::= Compound_stm ;
-ExprS.    Stm ::= Expression_stm;
-SelS.     Stm ::= Selection_stm;
-IterS.    Stm ::= Iter_stm;
-JumpS.    Stm ::= Jump_stm;
-PrintS.   Stm ::= Print_stm;
-InitS.    Stm ::= Init_stm;
+SComp.    Stmt ::= Compound_Stmt ;
+SExpr.    Stmt ::= Expression_Stmt;
+SSel.     Stmt ::= Selection_Stmt;
+SIter.    Stmt ::= Iter_Stmt;
+SJump.    Stmt ::= Jump_Stmt;
+SPrint.   Stmt ::= Print_Stmt;
+SInit.    Stmt ::= Init_Stmt;
 
-ScompOne.   Compound_stm ::= "{" "}" ;
-ScompTwo.   Compound_stm ::= "{" [Stm] "}" ;
-ScompThree.  Compound_stm ::= "{" [Dec] [Stm] "}" ;
+SCompOne.   Compound_Stmt ::= "{" "}" ;
+SCompTwo.   Compound_Stmt ::= "{" [Stmt] "}" ;
+SCompThree.  Compound_Stmt ::= "{" [Dec] [Stmt] "}" ;
 
-SexprOne.   Expression_stm ::= ";" ;
-SexprTwo.   Expression_stm ::= Exp ";" ;
+SExprOne.   Expression_Stmt ::= ";" ;
+SExprTwo.   Expression_Stmt ::= Exp ";" ;
 
-SselOne.    Selection_stm ::= "if" "(" Exp ")" Stm ;
-SselTwo.    Selection_stm ::= "if" "(" Exp ")" Stm "else" Stm ;
+SSelOne.    Selection_Stmt ::= "if" "(" Exp ")" Stmt ;
+SSelTwo.    Selection_Stmt ::= "if" "(" Exp ")" Stmt "else" Stmt ;
 
-SiterOne.   Iter_stm ::= "while" "(" Exp ")" Stm;
-SiterThree. Iter_stm ::= "for" "(" Expression_stm Expression_stm ")" Stm ;
-SiterFour.  Iter_stm ::= "for" "(" Expression_stm Expression_stm Exp ")" Stm;
+SIterOne.   Iter_Stmt ::= "while" "(" Exp ")" Stmt;
+SIterTwo. Iter_Stmt ::= "for" "(" Expression_Stmt Expression_Stmt ")" Stmt ;
+SIterThree.  Iter_Stmt ::= "for" "(" Expression_Stmt Expression_Stmt Exp ")" Stmt;
 
-SjumpFive.  Jump_stm ::= "return" Exp ";" ;
+SJumpOne.  Jump_Stmt ::= "return" Exp ";" ;
 
-Sprint.     Print_stm ::= "print" Exp ";" ;
+SPrintOne.     Print_Stmt ::= "print" Exp ";" ;
 
-Sinit.      Init_stm ::= "init" Ident "[" Exp "]" ";" ;
+SInitOne.      Init_Stmt ::= "init" Ident "[" Exp "]" ";" ;
 
-(:[]).   [Stm] ::= Stm ;
-(:).     [Stm] ::= Stm [Stm];
+(:[]).   [Stmt] ::= Stmt ;
+(:).     [Stmt] ::= Stmt [Stmt];
 
-Ecomma.       Exp ::= Exp "," Exp1;
-Eassign.      Exp1 ::= Exp4 Assignment_op Exp1;
-Eeq.          Exp2  ::= Exp2 "==" Exp3;
-Eneq.         Exp2  ::= Exp2 "!=" Exp3;
-Elthen.       Exp3 ::= Exp3 "<" Exp4;
-Egrthen.      Exp3 ::= Exp3 ">" Exp4;
-Ele.          Exp3 ::= Exp3 "<=" Exp4;
-Ege.          Exp3 ::= Exp3 ">=" Exp4;
-Eplus.        Exp4 ::= Exp4 "+" Exp3;
-Eminus.       Exp4 ::= Exp4 "-" Exp3;
-Etimes.       Exp5 ::= Exp5 "*" Exp4;
-Ediv.         Exp5 ::= Exp5 "/" Exp4;
-Eselect.      Exp6 ::= Exp6 "." Ident;
-Earray.       Exp6 ::= Exp6 "[" Exp "]" ;
-Efunk.        Exp6 ::= Exp6 "(" ")";
-Efunkpar.     Exp6 ::= Exp6 "(" [Exp1] ")";
-Emap.         Exp6 ::= Exp6 "<<" Exp ">>" ;
-Epostinc.     Exp7 ::= Exp7 "++";
-Epostdec.     Exp7 ::= Exp7 "--";
-Evar.         Exp8 ::= Ident;
-Econst.       Exp8 ::= Constant;
+EComma.       Exp ::= Exp "," Exp1;
+EAssign.      Exp1 ::= Exp4 Assignment_op Exp1;
+EEq.          Exp2  ::= Exp2 "==" Exp3;
+ENeq.         Exp2  ::= Exp2 "!=" Exp3;
+ELthen.       Exp3 ::= Exp3 "<" Exp4;
+EGrthen.      Exp3 ::= Exp3 ">" Exp4;
+ELe.          Exp3 ::= Exp3 "<=" Exp4;
+EGe.          Exp3 ::= Exp3 ">=" Exp4;
+EPlus.        Exp4 ::= Exp4 "+" Exp3;
+EMinus.       Exp4 ::= Exp4 "-" Exp3;
+ETimes.       Exp5 ::= Exp5 "*" Exp4;
+EDiv.         Exp5 ::= Exp5 "/" Exp4;
+ESelect.      Exp6 ::= Exp6 "." Ident;
+EArray.       Exp6 ::= Exp6 "[" Exp "]" ;
+EFunk.        Exp6 ::= Exp6 "(" ")";
+EFunkPar.     Exp6 ::= Exp6 "(" [Exp1] ")";
+EMap.         Exp6 ::= Exp6 "<<" Exp ">>" ;
+EPostInc.     Exp7 ::= Exp7 "++";
+EPostDec.     Exp7 ::= Exp7 "--";
+EVar.         Exp8 ::= Ident;
+EConst.       Exp8 ::= Constant;
 
-Eint.         Constant ::= Integer;
-Etrue.        Constant ::= "true";
-Efalse.        Constant ::= "false";
+EInt.         Constant ::= Integer;
+ETrue.        Constant ::= "true";
+EFalse.        Constant ::= "false";
 
 _. Exp ::= Exp1;
 _. Exp1 ::= Exp2;

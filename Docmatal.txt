@@ -69,32 +69,32 @@ All other symbols are terminals.
   | //Struct_spec// | -> | ``struct`` //Ident// ``{`` //[Dec]// ``}`` 
   | //[Ident]// | -> | //Ident// 
   |  |  **|**  | //Ident// ``,`` //[Ident]// 
-  | //Function_def// | -> | //Declarator// ``(`` ``)`` //Compound_stm// 
-  |  |  **|**  | //Declarator// ``(`` //Parameter_declarations// ``)`` //Compound_stm// 
+  | //Function_def// | -> | //Declarator// ``(`` ``)`` //Compound_Stmt// 
+  |  |  **|**  | //Declarator// ``(`` //Parameter_declarations// ``)`` //Compound_Stmt// 
   | //Parameter_declarations// | -> | //Declarator// 
   |  |  **|**  | //Parameter_declarations// ``,`` //Declarator// 
-  | //Stm// | -> | //Compound_stm// 
-  |  |  **|**  | //Expression_stm// 
-  |  |  **|**  | //Selection_stm// 
-  |  |  **|**  | //Iter_stm// 
-  |  |  **|**  | //Jump_stm// 
-  |  |  **|**  | //Print_stm// 
-  |  |  **|**  | //Init_stm// 
-  | //Compound_stm// | -> | ``{`` ``}`` 
-  |  |  **|**  | ``{`` //[Stm]// ``}`` 
-  |  |  **|**  | ``{`` //[Dec]// //[Stm]// ``}`` 
-  | //Expression_stm// | -> | ``;`` 
+  | //Stmt// | -> | //Compound_Stmt// 
+  |  |  **|**  | //Expression_Stmt// 
+  |  |  **|**  | //Selection_Stmt// 
+  |  |  **|**  | //Iter_Stmt// 
+  |  |  **|**  | //Jump_Stmt// 
+  |  |  **|**  | //Print_Stmt// 
+  |  |  **|**  | //Init_Stmt// 
+  | //Compound_Stmt// | -> | ``{`` ``}`` 
+  |  |  **|**  | ``{`` //[Stmt]// ``}`` 
+  |  |  **|**  | ``{`` //[Dec]// //[Stmt]// ``}`` 
+  | //Expression_Stmt// | -> | ``;`` 
   |  |  **|**  | //Exp// ``;`` 
-  | //Selection_stm// | -> | ``if`` ``(`` //Exp// ``)`` //Stm// 
-  |  |  **|**  | ``if`` ``(`` //Exp// ``)`` //Stm// ``else`` //Stm// 
-  | //Iter_stm// | -> | ``while`` ``(`` //Exp// ``)`` //Stm// 
-  |  |  **|**  | ``for`` ``(`` //Expression_stm// //Expression_stm// ``)`` //Stm// 
-  |  |  **|**  | ``for`` ``(`` //Expression_stm// //Expression_stm// //Exp// ``)`` //Stm// 
-  | //Jump_stm// | -> | ``return`` //Exp// ``;`` 
-  | //Print_stm// | -> | ``print`` //Exp// ``;`` 
-  | //Init_stm// | -> | ``init`` //Ident// ``[`` //Exp// ``]`` ``;`` 
-  | //[Stm]// | -> | //Stm// 
-  |  |  **|**  | //Stm// //[Stm]// 
+  | //Selection_Stmt// | -> | ``if`` ``(`` //Exp// ``)`` //Stmt// 
+  |  |  **|**  | ``if`` ``(`` //Exp// ``)`` //Stmt// ``else`` //Stmt// 
+  | //Iter_Stmt// | -> | ``while`` ``(`` //Exp// ``)`` //Stmt// 
+  |  |  **|**  | ``for`` ``(`` //Expression_Stmt// //Expression_Stmt// ``)`` //Stmt// 
+  |  |  **|**  | ``for`` ``(`` //Expression_Stmt// //Expression_Stmt// //Exp// ``)`` //Stmt// 
+  | //Jump_Stmt// | -> | ``return`` //Exp// ``;`` 
+  | //Print_Stmt// | -> | ``print`` //Exp// ``;`` 
+  | //Init_Stmt// | -> | ``init`` //Ident// ``[`` //Exp// ``]`` ``;`` 
+  | //[Stmt]// | -> | //Stmt// 
+  |  |  **|**  | //Stmt// //[Stmt]// 
   | //Exp// | -> | //Exp// ``,`` //Exp1// 
   |  |  **|**  | //Exp1// 
   | //Exp1// | -> | //Exp4// //Assignment_op// //Exp1// 

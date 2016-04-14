@@ -103,7 +103,7 @@ instance Print External_declaration where
 
 instance Print Declarator where
   prt i e = case e of
-   Dvariable type_specifier id -> prPrec i 0 (concatD [prt 0 type_specifier , prt 0 id])
+   DVariable type_specifier id -> prPrec i 0 (concatD [prt 0 type_specifier , prt 0 id])
 
 
 instance Print Dec where
@@ -116,12 +116,12 @@ instance Print Dec where
 
 instance Print Type_specifier where
   prt i e = case e of
-   Tvoid  -> prPrec i 0 (concatD [doc (showString "void")])
-   Tint  -> prPrec i 0 (concatD [doc (showString "int")])
-   Tbool  -> prPrec i 0 (concatD [doc (showString "bool")])
-   Tstruct id -> prPrec i 0 (concatD [prt 0 id])
-   Tarray type_specifier -> prPrec i 0 (concatD [prt 0 type_specifier , doc (showString "[]")])
-   Tmap type_specifier0 type_specifier -> prPrec i 0 (concatD [prt 0 type_specifier0 , doc (showString "<<") , prt 0 type_specifier , doc (showString ">>")])
+   TVoid  -> prPrec i 0 (concatD [doc (showString "void")])
+   TInt  -> prPrec i 0 (concatD [doc (showString "int")])
+   TBool  -> prPrec i 0 (concatD [doc (showString "bool")])
+   TStruct id -> prPrec i 0 (concatD [prt 0 id])
+   TArray type_specifier -> prPrec i 0 (concatD [prt 0 type_specifier , doc (showString "[]")])
+   TMap type_specifier0 type_specifier -> prPrec i 0 (concatD [prt 0 type_specifier0 , doc (showString "<<") , prt 0 type_specifier , doc (showString ">>")])
 
 
 instance Print Struct_spec where
@@ -131,8 +131,8 @@ instance Print Struct_spec where
 
 instance Print Function_def where
   prt i e = case e of
-   FuncNoParams declarator compound_stm -> prPrec i 0 (concatD [prt 0 declarator , doc (showString "(") , doc (showString ")") , prt 0 compound_stm])
-   FuncParams declarator parameter_declarations compound_stm -> prPrec i 0 (concatD [prt 0 declarator , doc (showString "(") , prt 0 parameter_declarations , doc (showString ")") , prt 0 compound_stm])
+   FuncNoParams declarator compound_stmt -> prPrec i 0 (concatD [prt 0 declarator , doc (showString "(") , doc (showString ")") , prt 0 compound_stmt])
+   FuncParams declarator parameter_declarations compound_stmt -> prPrec i 0 (concatD [prt 0 declarator , doc (showString "(") , prt 0 parameter_declarations , doc (showString ")") , prt 0 compound_stmt])
 
 
 instance Print Parameter_declarations where
@@ -141,84 +141,84 @@ instance Print Parameter_declarations where
    MoreParamDec parameter_declarations declarator -> prPrec i 0 (concatD [prt 0 parameter_declarations , doc (showString ",") , prt 0 declarator])
 
 
-instance Print Stm where
+instance Print Stmt where
   prt i e = case e of
-   CompS compound_stm -> prPrec i 0 (concatD [prt 0 compound_stm])
-   ExprS expression_stm -> prPrec i 0 (concatD [prt 0 expression_stm])
-   SelS selection_stm -> prPrec i 0 (concatD [prt 0 selection_stm])
-   IterS iter_stm -> prPrec i 0 (concatD [prt 0 iter_stm])
-   JumpS jump_stm -> prPrec i 0 (concatD [prt 0 jump_stm])
-   PrintS print_stm -> prPrec i 0 (concatD [prt 0 print_stm])
-   InitS init_stm -> prPrec i 0 (concatD [prt 0 init_stm])
+   SComp compound_stmt -> prPrec i 0 (concatD [prt 0 compound_stmt])
+   SExpr expression_stmt -> prPrec i 0 (concatD [prt 0 expression_stmt])
+   SSel selection_stmt -> prPrec i 0 (concatD [prt 0 selection_stmt])
+   SIter iter_stmt -> prPrec i 0 (concatD [prt 0 iter_stmt])
+   SJump jump_stmt -> prPrec i 0 (concatD [prt 0 jump_stmt])
+   SPrint print_stmt -> prPrec i 0 (concatD [prt 0 print_stmt])
+   SInit init_stmt -> prPrec i 0 (concatD [prt 0 init_stmt])
 
   prtList es = case es of
    [x] -> (concatD [prt 0 x])
    x:xs -> (concatD [prt 0 x , prt 0 xs])
 
-instance Print Compound_stm where
+instance Print Compound_Stmt where
   prt i e = case e of
-   ScompOne  -> prPrec i 0 (concatD [doc (showString "{") , doc (showString "}")])
-   ScompTwo stms -> prPrec i 0 (concatD [doc (showString "{") , prt 0 stms , doc (showString "}")])
-   ScompThree decs stms -> prPrec i 0 (concatD [doc (showString "{") , prt 0 decs , prt 0 stms , doc (showString "}")])
+   SCompOne  -> prPrec i 0 (concatD [doc (showString "{") , doc (showString "}")])
+   SCompTwo stmts -> prPrec i 0 (concatD [doc (showString "{") , prt 0 stmts , doc (showString "}")])
+   SCompThree decs stmts -> prPrec i 0 (concatD [doc (showString "{") , prt 0 decs , prt 0 stmts , doc (showString "}")])
 
 
-instance Print Expression_stm where
+instance Print Expression_Stmt where
   prt i e = case e of
-   SexprOne  -> prPrec i 0 (concatD [doc (showString ";")])
-   SexprTwo exp -> prPrec i 0 (concatD [prt 0 exp , doc (showString ";")])
+   SExprOne  -> prPrec i 0 (concatD [doc (showString ";")])
+   SExprTwo exp -> prPrec i 0 (concatD [prt 0 exp , doc (showString ";")])
 
 
-instance Print Selection_stm where
+instance Print Selection_Stmt where
   prt i e = case e of
-   SselOne exp stm -> prPrec i 0 (concatD [doc (showString "if") , doc (showString "(") , prt 0 exp , doc (showString ")") , prt 0 stm])
-   SselTwo exp stm0 stm -> prPrec i 0 (concatD [doc (showString "if") , doc (showString "(") , prt 0 exp , doc (showString ")") , prt 0 stm0 , doc (showString "else") , prt 0 stm])
+   SSelOne exp stmt -> prPrec i 0 (concatD [doc (showString "if") , doc (showString "(") , prt 0 exp , doc (showString ")") , prt 0 stmt])
+   SSelTwo exp stmt0 stmt -> prPrec i 0 (concatD [doc (showString "if") , doc (showString "(") , prt 0 exp , doc (showString ")") , prt 0 stmt0 , doc (showString "else") , prt 0 stmt])
 
 
-instance Print Iter_stm where
+instance Print Iter_Stmt where
   prt i e = case e of
-   SiterOne exp stm -> prPrec i 0 (concatD [doc (showString "while") , doc (showString "(") , prt 0 exp , doc (showString ")") , prt 0 stm])
-   SiterThree expression_stm0 expression_stm stm -> prPrec i 0 (concatD [doc (showString "for") , doc (showString "(") , prt 0 expression_stm0 , prt 0 expression_stm , doc (showString ")") , prt 0 stm])
-   SiterFour expression_stm0 expression_stm exp stm -> prPrec i 0 (concatD [doc (showString "for") , doc (showString "(") , prt 0 expression_stm0 , prt 0 expression_stm , prt 0 exp , doc (showString ")") , prt 0 stm])
+   SIterOne exp stmt -> prPrec i 0 (concatD [doc (showString "while") , doc (showString "(") , prt 0 exp , doc (showString ")") , prt 0 stmt])
+   SIterTwo expression_stmt0 expression_stmt stmt -> prPrec i 0 (concatD [doc (showString "for") , doc (showString "(") , prt 0 expression_stmt0 , prt 0 expression_stmt , doc (showString ")") , prt 0 stmt])
+   SIterThree expression_stmt0 expression_stmt exp stmt -> prPrec i 0 (concatD [doc (showString "for") , doc (showString "(") , prt 0 expression_stmt0 , prt 0 expression_stmt , prt 0 exp , doc (showString ")") , prt 0 stmt])
 
 
-instance Print Jump_stm where
+instance Print Jump_Stmt where
   prt i e = case e of
-   SjumpFive exp -> prPrec i 0 (concatD [doc (showString "return") , prt 0 exp , doc (showString ";")])
+   SJumpOne exp -> prPrec i 0 (concatD [doc (showString "return") , prt 0 exp , doc (showString ";")])
 
 
-instance Print Print_stm where
+instance Print Print_Stmt where
   prt i e = case e of
-   Sprint exp -> prPrec i 0 (concatD [doc (showString "print") , prt 0 exp , doc (showString ";")])
+   SPrintOne exp -> prPrec i 0 (concatD [doc (showString "print") , prt 0 exp , doc (showString ";")])
 
 
-instance Print Init_stm where
+instance Print Init_Stmt where
   prt i e = case e of
-   Sinit id exp -> prPrec i 0 (concatD [doc (showString "init") , prt 0 id , doc (showString "[") , prt 0 exp , doc (showString "]") , doc (showString ";")])
+   SInitOne id exp -> prPrec i 0 (concatD [doc (showString "init") , prt 0 id , doc (showString "[") , prt 0 exp , doc (showString "]") , doc (showString ";")])
 
 
 instance Print Exp where
   prt i e = case e of
-   Ecomma exp0 exp -> prPrec i 0 (concatD [prt 0 exp0 , doc (showString ",") , prt 1 exp])
-   Eassign exp0 assignment_op exp -> prPrec i 1 (concatD [prt 4 exp0 , prt 0 assignment_op , prt 1 exp])
-   Eeq exp0 exp -> prPrec i 2 (concatD [prt 2 exp0 , doc (showString "==") , prt 3 exp])
-   Eneq exp0 exp -> prPrec i 2 (concatD [prt 2 exp0 , doc (showString "!=") , prt 3 exp])
-   Elthen exp0 exp -> prPrec i 3 (concatD [prt 3 exp0 , doc (showString "<") , prt 4 exp])
-   Egrthen exp0 exp -> prPrec i 3 (concatD [prt 3 exp0 , doc (showString ">") , prt 4 exp])
-   Ele exp0 exp -> prPrec i 3 (concatD [prt 3 exp0 , doc (showString "<=") , prt 4 exp])
-   Ege exp0 exp -> prPrec i 3 (concatD [prt 3 exp0 , doc (showString ">=") , prt 4 exp])
-   Eplus exp0 exp -> prPrec i 4 (concatD [prt 4 exp0 , doc (showString "+") , prt 3 exp])
-   Eminus exp0 exp -> prPrec i 4 (concatD [prt 4 exp0 , doc (showString "-") , prt 3 exp])
-   Etimes exp0 exp -> prPrec i 5 (concatD [prt 5 exp0 , doc (showString "*") , prt 4 exp])
-   Ediv exp0 exp -> prPrec i 5 (concatD [prt 5 exp0 , doc (showString "/") , prt 4 exp])
-   Eselect exp id -> prPrec i 6 (concatD [prt 6 exp , doc (showString ".") , prt 0 id])
-   Earray exp0 exp -> prPrec i 6 (concatD [prt 6 exp0 , doc (showString "[") , prt 0 exp , doc (showString "]")])
-   Efunk exp -> prPrec i 6 (concatD [prt 6 exp , doc (showString "(") , doc (showString ")")])
-   Efunkpar exp exps -> prPrec i 6 (concatD [prt 6 exp , doc (showString "(") , prt 1 exps , doc (showString ")")])
-   Emap exp0 exp -> prPrec i 6 (concatD [prt 6 exp0 , doc (showString "<<") , prt 0 exp , doc (showString ">>")])
-   Epostinc exp -> prPrec i 7 (concatD [prt 7 exp , doc (showString "++")])
-   Epostdec exp -> prPrec i 7 (concatD [prt 7 exp , doc (showString "--")])
-   Evar id -> prPrec i 8 (concatD [prt 0 id])
-   Econst constant -> prPrec i 8 (concatD [prt 0 constant])
+   EComma exp0 exp -> prPrec i 0 (concatD [prt 0 exp0 , doc (showString ",") , prt 1 exp])
+   EAssign exp0 assignment_op exp -> prPrec i 1 (concatD [prt 4 exp0 , prt 0 assignment_op , prt 1 exp])
+   EEq exp0 exp -> prPrec i 2 (concatD [prt 2 exp0 , doc (showString "==") , prt 3 exp])
+   ENeq exp0 exp -> prPrec i 2 (concatD [prt 2 exp0 , doc (showString "!=") , prt 3 exp])
+   ELthen exp0 exp -> prPrec i 3 (concatD [prt 3 exp0 , doc (showString "<") , prt 4 exp])
+   EGrthen exp0 exp -> prPrec i 3 (concatD [prt 3 exp0 , doc (showString ">") , prt 4 exp])
+   ELe exp0 exp -> prPrec i 3 (concatD [prt 3 exp0 , doc (showString "<=") , prt 4 exp])
+   EGe exp0 exp -> prPrec i 3 (concatD [prt 3 exp0 , doc (showString ">=") , prt 4 exp])
+   EPlus exp0 exp -> prPrec i 4 (concatD [prt 4 exp0 , doc (showString "+") , prt 3 exp])
+   EMinus exp0 exp -> prPrec i 4 (concatD [prt 4 exp0 , doc (showString "-") , prt 3 exp])
+   ETimes exp0 exp -> prPrec i 5 (concatD [prt 5 exp0 , doc (showString "*") , prt 4 exp])
+   EDiv exp0 exp -> prPrec i 5 (concatD [prt 5 exp0 , doc (showString "/") , prt 4 exp])
+   ESelect exp id -> prPrec i 6 (concatD [prt 6 exp , doc (showString ".") , prt 0 id])
+   EArray exp0 exp -> prPrec i 6 (concatD [prt 6 exp0 , doc (showString "[") , prt 0 exp , doc (showString "]")])
+   EFunk exp -> prPrec i 6 (concatD [prt 6 exp , doc (showString "(") , doc (showString ")")])
+   EFunkPar exp exps -> prPrec i 6 (concatD [prt 6 exp , doc (showString "(") , prt 1 exps , doc (showString ")")])
+   EMap exp0 exp -> prPrec i 6 (concatD [prt 6 exp0 , doc (showString "<<") , prt 0 exp , doc (showString ">>")])
+   EPostInc exp -> prPrec i 7 (concatD [prt 7 exp , doc (showString "++")])
+   EPostDec exp -> prPrec i 7 (concatD [prt 7 exp , doc (showString "--")])
+   EVar id -> prPrec i 8 (concatD [prt 0 id])
+   EConst constant -> prPrec i 8 (concatD [prt 0 constant])
 
   prtList es = case es of
    [x] -> (concatD [prt 1 x])
@@ -226,9 +226,9 @@ instance Print Exp where
 
 instance Print Constant where
   prt i e = case e of
-   Eint n -> prPrec i 0 (concatD [prt 0 n])
-   Etrue  -> prPrec i 0 (concatD [doc (showString "true")])
-   Efalse  -> prPrec i 0 (concatD [doc (showString "false")])
+   EInt n -> prPrec i 0 (concatD [prt 0 n])
+   ETrue  -> prPrec i 0 (concatD [doc (showString "true")])
+   EFalse  -> prPrec i 0 (concatD [doc (showString "false")])
 
 
 instance Print Assignment_op where
