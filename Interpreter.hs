@@ -116,11 +116,14 @@ transExp (EConst c) = case c of
 
 transExp (EVar v) = do getVal v
 
-transExp (EAssign (EVar v) op e) = do
-  val <- transExp e
-  let newVal =
-        case op of
-          Assign -> val
+transExp (EAssign e1@(EVar v) op e2) = do
+  newVal <-
+    case op of
+      Assign -> transExp e2
+      AssignAdd -> transExp (EPlus e1 e2)
+      AssignSub -> transExp (EMinus e1 e2)
+      AssignMul -> transExp (ETimes e1 e2)
+      AssignDiv -> transExp (EDiv e1 e2)
   setVal v newVal
   return newVal
 
