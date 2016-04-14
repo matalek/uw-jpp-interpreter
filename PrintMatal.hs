@@ -119,7 +119,7 @@ instance Print TypeSpecifier where
    TVoid  -> prPrec i 0 (concatD [doc (showString "void")])
    TInt  -> prPrec i 0 (concatD [doc (showString "int")])
    TBool  -> prPrec i 0 (concatD [doc (showString "bool")])
-   TStruct id -> prPrec i 0 (concatD [prt 0 id])
+   TStruct id -> prPrec i 0 (concatD [doc (showString "struct") , prt 0 id])
    TArray typespecifier -> prPrec i 0 (concatD [prt 0 typespecifier , doc (showString "[]")])
    TMap typespecifier0 typespecifier -> prPrec i 0 (concatD [prt 0 typespecifier0 , doc (showString "<<") , prt 0 typespecifier , doc (showString ">>")])
 

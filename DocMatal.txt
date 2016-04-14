@@ -63,7 +63,7 @@ All other symbols are terminals.
   | //TypeSpecifier// | -> | ``void`` 
   |  |  **|**  | ``int`` 
   |  |  **|**  | ``bool`` 
-  |  |  **|**  | //Ident// 
+  |  |  **|**  | ``struct`` //Ident// 
   |  |  **|**  | //TypeSpecifier// ``[]`` 
   |  |  **|**  | //TypeSpecifier// ``<<`` //TypeSpecifier// ``>>`` 
   | //StructSpec// | -> | ``struct`` //Ident// ``{`` //[Dec]// ``}`` 

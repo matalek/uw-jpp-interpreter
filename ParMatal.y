@@ -8,9 +8,7 @@ import ErrM
 
 }
 
-%name pProgram Program
 %name pStmt Stmt
-%name pExp Exp
 
 -- no lexer declaration
 %monad { Err } { thenM } { returnM }
@@ -102,7 +100,7 @@ TypeSpecifier :: { TypeSpecifier }
 TypeSpecifier : 'void' { TVoid } 
   | 'int' { TInt }
   | 'bool' { TBool }
-  | Ident { TStruct $1 }
+  | 'struct' Ident { TStruct $2 }
   | TypeSpecifier '[]' { TArray $1 }
   | TypeSpecifier '<<' TypeSpecifier '>>' { TMap $1 $3 }
 

@@ -1,7 +1,7 @@
 -- Aleksander Matusiak
 -- EBNF grammar of Matal language
 
-entrypoints Program, Stmt, Exp ;
+entrypoints Stmt;
 
 Progr.  Program ::= [ExternalDeclaration] ;
 
@@ -22,7 +22,7 @@ Declaration.     Dec ::= Declarator ";";
 TVoid.        TypeSpecifier ::= "void";
 TInt.         TypeSpecifier ::= "int";
 TBool.        TypeSpecifier ::= "bool";
-TStruct.      TypeSpecifier ::= Ident;
+TStruct.      TypeSpecifier ::= "struct" Ident;
 TArray.       TypeSpecifier ::= TypeSpecifier "[]" ;
 TMap.         TypeSpecifier ::= TypeSpecifier "<<" TypeSpecifier ">>" ;
 
