@@ -50,6 +50,8 @@ alloc = do
   put $ insert loc (Int 0) store
   return loc
 
+skip :: Stmt
+skip = SComp (SCompOne)
 
 -- Right now only for statements
 interpret :: Stmt -> IO ()
@@ -68,7 +70,7 @@ transStmt :: Stmt -> Interpreter ()
 transStmt x = case x of
   SComp compoundStmt  -> transCompoundStmt compoundStmt
   SExpr expressionStmt  -> transExpressionStmt expressionStmt
-  SSel selectionStmt  -> failure x
+  SSel selectionStmt  -> transSelectionStmt selectionStmt
   SIter iterStmt  -> transIterStmt iterStmt
   SJump jumpStmt  -> failure x
   SPrint printStmt  -> transPrintStmt printStmt
@@ -81,6 +83,16 @@ transExpressionStmt SExprOne = return ()
 transExpressionStmt (SExprTwo e) = do
   _ <- transExp e
   return ()
+
+-- Selection statements
+transSelectionStmt :: SelectionStmt -> Interpreter ()
+transSelectionStmt (SSelOne e s) =
+  transSelectionStmt (SSelTwo e s skip) 
+transSelectionStmt (SSelTwo e s1 s2) = do
+  val <- transExp e
+  case val of
+    (Bool True) -> transStmt s1
+    _ -> transStmt s2
 
 -- Iter statements
 transIterStmt :: IterStmt -> Interpreter ()
