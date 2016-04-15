@@ -118,8 +118,8 @@ All other symbols are terminals.\\
 \end{tabular}\\
 
 \begin{tabular}{lll}
-{\nonterminal{FunctionDef}} & {\arrow}  &{\nonterminal{Declarator}} {\terminal{(}} {\terminal{)}} {\nonterminal{CompoundStmt}}  \\
- & {\delimit}  &{\nonterminal{Declarator}} {\terminal{(}} {\nonterminal{ParameterDeclarations}} {\terminal{)}} {\nonterminal{CompoundStmt}}  \\
+{\nonterminal{FunctionDef}} & {\arrow}  &{\nonterminal{Declarator}} {\terminal{(}} {\terminal{)}} {\nonterminal{FunctionBody}}  \\
+ & {\delimit}  &{\nonterminal{Declarator}} {\terminal{(}} {\nonterminal{ParameterDeclarations}} {\terminal{)}} {\nonterminal{FunctionBody}}  \\
 \end{tabular}\\
 
 \begin{tabular}{lll}
@@ -128,11 +128,16 @@ All other symbols are terminals.\\
 \end{tabular}\\
 
 \begin{tabular}{lll}
+{\nonterminal{FunctionBody}} & {\arrow}  &{\terminal{\{}} {\terminal{return}} {\nonterminal{ExpressionStmt}} {\terminal{\}}}  \\
+ & {\delimit}  &{\terminal{\{}} {\nonterminal{ListStmt}} {\terminal{return}} {\nonterminal{ExpressionStmt}} {\terminal{\}}}  \\
+ & {\delimit}  &{\terminal{\{}} {\nonterminal{ListDec}} {\nonterminal{ListStmt}} {\terminal{return}} {\nonterminal{ExpressionStmt}} {\terminal{\}}}  \\
+\end{tabular}\\
+
+\begin{tabular}{lll}
 {\nonterminal{Stmt}} & {\arrow}  &{\nonterminal{CompoundStmt}}  \\
  & {\delimit}  &{\nonterminal{ExpressionStmt}}  \\
  & {\delimit}  &{\nonterminal{SelectionStmt}}  \\
  & {\delimit}  &{\nonterminal{IterStmt}}  \\
- & {\delimit}  &{\nonterminal{JumpStmt}}  \\
  & {\delimit}  &{\nonterminal{PrintStmt}}  \\
  & {\delimit}  &{\nonterminal{InitStmt}}  \\
 \end{tabular}\\
@@ -157,10 +162,6 @@ All other symbols are terminals.\\
 {\nonterminal{IterStmt}} & {\arrow}  &{\terminal{while}} {\terminal{(}} {\nonterminal{Exp}} {\terminal{)}} {\nonterminal{Stmt}}  \\
  & {\delimit}  &{\terminal{for}} {\terminal{(}} {\nonterminal{ExpressionStmt}} {\nonterminal{ExpressionStmt}} {\terminal{)}} {\nonterminal{Stmt}}  \\
  & {\delimit}  &{\terminal{for}} {\terminal{(}} {\nonterminal{ExpressionStmt}} {\nonterminal{ExpressionStmt}} {\nonterminal{Exp}} {\terminal{)}} {\nonterminal{Stmt}}  \\
-\end{tabular}\\
-
-\begin{tabular}{lll}
-{\nonterminal{JumpStmt}} & {\arrow}  &{\terminal{return}} {\nonterminal{Exp}} {\terminal{;}}  \\
 \end{tabular}\\
 
 \begin{tabular}{lll}

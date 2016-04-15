@@ -8,33 +8,48 @@ import Data.Map
 import ErrM
 
 type Var = Ident
+type FName = Ident
 type Loc = Int
 data Val = Int Int | Bool Bool
+newtype Fun = Fun ([Val] -> Interpreter Val)
+
 type Store = Map Loc Val
-type Env = Map Var Loc
+type Env = (Map Var Loc, Map FName Fun)
 
 type Interpreter a = StateT Store (ReaderT Env IO) a
 
 failure :: Show a => a -> Interpreter ()
 failure x = error $ "Undefined case: " ++ show x
 
-getLoc :: Var -> Interpreter Loc
-getLoc v = do
+getVarLoc :: Var -> Interpreter Loc
+getVarLoc v = do
   env <- ask
-  return $ env ! v
+  return $ fst env ! v
 
 setLoc :: Var -> Loc -> Env -> Env
-setLoc = insert
+setLoc v loc (eVar, eFun) =
+  let newEVar = insert v loc eVar
+  in (newEVar, eFun)
 
-getVal :: Var -> Interpreter Val
-getVal v = do
+setFun :: FName -> Fun -> Env -> Env
+setFun name fun (eVar, eFun) = 
+  let newEFun = insert name fun eFun
+  in (eVar, newEFun)
+
+getFun :: FName -> Interpreter Fun
+getFun f = do
+  env <- ask
+  return $ snd env ! f 
+  
+getVarVal :: Var -> Interpreter Val
+getVarVal v = do
   store <- get
-  loc <- getLoc v
+  loc <- getVarLoc v
   return $ store ! loc
 
 setVal :: Var -> Val -> Interpreter ()
 setVal var val = do
-  loc <- getLoc var
+  loc <- getVarLoc var
   modify $ insert loc val
 
 showVal :: Val -> String
@@ -54,9 +69,9 @@ skip :: Stmt
 skip = SComp (SCompOne)
 
 -- Right now only for statements
-interpret :: Stmt -> IO ()
-interpret s = do
-  runReaderT (execStateT (transStmt s) empty) empty
+interpret :: Program -> IO ()
+interpret p = do
+  runReaderT (execStateT (transProgram p) empty) (empty, empty)
   return ()
 
 transStmts :: [Stmt] -> Interpreter ()
@@ -72,7 +87,6 @@ transStmt x = case x of
   SExpr expressionStmt  -> transExpressionStmt expressionStmt
   SSel selectionStmt  -> transSelectionStmt selectionStmt
   SIter iterStmt  -> transIterStmt iterStmt
-  SJump jumpStmt  -> failure x
   SPrint printStmt  -> transPrintStmt printStmt
   SInit initStmt  -> failure x
 
@@ -135,7 +149,7 @@ transExp (EConst c) = case c of
   ETrue -> return $ Bool True
   EFalse -> return $ Bool False
 
-transExp (EVar v) = do getVal v
+transExp (EVar v) = do getVarVal v
 
 transExp (EAssign e1@(EVar v) op e2) = do
   newVal <-
@@ -158,6 +172,10 @@ transExp (EGrthen e1 e2) = evalBinOpBool e1 e2 (>)
 transExp (ELe e1 e2) = evalBinOpBool e1 e2 (<=)
 transExp (EGe e1 e2) = evalBinOpBool e1 e2 (>=)
 
+transExp (EFunk (EVar f)) = do
+  (Fun fun) <- getFun f
+  fun []
+
 evalBinOpInt :: Exp -> Exp -> (Int -> Int -> Int) -> Interpreter Val
 evalBinOpInt e1 e2 op = do
   (Int val1) <- transExp e1
@@ -179,3 +197,35 @@ transDec ((Declaration (DVariable TInt v)):ds) = do
   modify (\store -> insert loc (Int 0) store)
   newEnv <- local (setLoc v loc) $ transDec ds
   return newEnv
+
+
+transExternalDeclaration :: ExternalDeclaration -> Interpreter Env
+transExternalDeclaration x = case x of
+  Afunc functiondef  -> transFuncDef functiondef
+  Global dec  -> transDec [dec]
+  -- StructDec structspec  -> failure x
+
+transFuncDef :: FunctionDef -> Interpreter Env
+transFuncDef (FuncNoParams (DVariable _ funName) (FuncBodyTwo stmts es)) = do
+  env <- ask
+  let fun _ = do
+        local (\_ -> env) $ transStmts stmts
+        case es of
+          SExprOne -> return $ Int 0 -- procedure, returning whatever
+          SExprTwo e -> local (\_ -> env) $ transExp e
+  return $ setFun funName (Fun fun) env
+
+transExternalDeclarations :: [ExternalDeclaration] -> Interpreter Env
+transExternalDeclarations [] = ask
+transExternalDeclarations (d:ds) = do
+  newEnv1 <- transExternalDeclaration d
+  newEnv2 <- local (\_ -> newEnv1) $ transExternalDeclarations ds
+  return newEnv2
+
+-- Program execution
+transProgram :: Program -> Interpreter ()
+transProgram (Progr ds) = do
+  env <- transExternalDeclarations ds
+  (Fun main) <- local (\_ -> env) $ getFun (Ident "main")
+  local (\_ -> env) $ main []
+  return ()

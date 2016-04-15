@@ -8,7 +8,7 @@ import ErrM
 
 }
 
-%name pStmt Stmt
+%name pProgram Program
 
 -- no lexer declaration
 %monad { Err } { thenM } { returnM }
@@ -115,8 +115,8 @@ ListIdent : Ident { (:[]) $1 }
 
 
 FunctionDef :: { FunctionDef }
-FunctionDef : Declarator '(' ')' CompoundStmt { FuncNoParams $1 $4 } 
-  | Declarator '(' ParameterDeclarations ')' CompoundStmt { FuncParams $1 $3 $5 }
+FunctionDef : Declarator '(' ')' FunctionBody { FuncNoParams $1 $4 } 
+  | Declarator '(' ParameterDeclarations ')' FunctionBody { FuncParams $1 $3 $5 }
 
 
 ParameterDeclarations :: { ParameterDeclarations }
@@ -124,12 +124,17 @@ ParameterDeclarations : Declarator { ParamDec $1 }
   | ParameterDeclarations ',' Declarator { MoreParamDec $1 $3 }
 
 
+FunctionBody :: { FunctionBody }
+FunctionBody : '{' 'return' ExpressionStmt '}' { FuncBodyOne $3 } 
+  | '{' ListStmt 'return' ExpressionStmt '}' { FuncBodyTwo $2 $4 }
+  | '{' ListDec ListStmt 'return' ExpressionStmt '}' { FuncBodyThree $2 $3 $5 }
+
+
 Stmt :: { Stmt }
 Stmt : CompoundStmt { SComp $1 } 
   | ExpressionStmt { SExpr $1 }
   | SelectionStmt { SSel $1 }
   | IterStmt { SIter $1 }
-  | JumpStmt { SJump $1 }
   | PrintStmt { SPrint $1 }
   | InitStmt { SInit $1 }
 
@@ -154,10 +159,6 @@ IterStmt :: { IterStmt }
 IterStmt : 'while' '(' Exp ')' Stmt { SIterOne $3 $5 } 
   | 'for' '(' ExpressionStmt ExpressionStmt ')' Stmt { SIterTwo $3 $4 $6 }
   | 'for' '(' ExpressionStmt ExpressionStmt Exp ')' Stmt { SIterThree $3 $4 $5 $7 }
-
-
-JumpStmt :: { JumpStmt }
-JumpStmt : 'return' Exp ';' { SJumpOne $2 } 
 
 
 PrintStmt :: { PrintStmt }

@@ -53,8 +53,8 @@ transStructSpec x = case x of
 
 transFunctionDef :: FunctionDef -> Result
 transFunctionDef x = case x of
-  FuncNoParams declarator compoundstmt  -> failure x
-  FuncParams declarator parameterdeclarations compoundstmt  -> failure x
+  FuncNoParams declarator functionbody  -> failure x
+  FuncParams declarator parameterdeclarations functionbody  -> failure x
 
 
 transParameterDeclarations :: ParameterDeclarations -> Result
@@ -63,13 +63,19 @@ transParameterDeclarations x = case x of
   MoreParamDec parameterdeclarations declarator  -> failure x
 
 
+transFunctionBody :: FunctionBody -> Result
+transFunctionBody x = case x of
+  FuncBodyOne expressionstmt  -> failure x
+  FuncBodyTwo stmts expressionstmt  -> failure x
+  FuncBodyThree decs stmts expressionstmt  -> failure x
+
+
 transStmt :: Stmt -> Result
 transStmt x = case x of
   SComp compoundstmt  -> failure x
   SExpr expressionstmt  -> failure x
   SSel selectionstmt  -> failure x
   SIter iterstmt  -> failure x
-  SJump jumpstmt  -> failure x
   SPrint printstmt  -> failure x
   SInit initstmt  -> failure x
 
@@ -98,11 +104,6 @@ transIterStmt x = case x of
   SIterOne exp stmt  -> failure x
   SIterTwo expressionstmt0 expressionstmt stmt  -> failure x
   SIterThree expressionstmt0 expressionstmt exp stmt  -> failure x
-
-
-transJumpStmt :: JumpStmt -> Result
-transJumpStmt x = case x of
-  SJumpOne exp  -> failure x
 
 
 transPrintStmt :: PrintStmt -> Result

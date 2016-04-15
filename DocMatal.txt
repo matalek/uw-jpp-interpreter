@@ -69,15 +69,17 @@ All other symbols are terminals.
   | //StructSpec// | -> | ``struct`` //Ident// ``{`` //[Dec]// ``}`` 
   | //[Ident]// | -> | //Ident// 
   |  |  **|**  | //Ident// ``,`` //[Ident]// 
-  | //FunctionDef// | -> | //Declarator// ``(`` ``)`` //CompoundStmt// 
-  |  |  **|**  | //Declarator// ``(`` //ParameterDeclarations// ``)`` //CompoundStmt// 
+  | //FunctionDef// | -> | //Declarator// ``(`` ``)`` //FunctionBody// 
+  |  |  **|**  | //Declarator// ``(`` //ParameterDeclarations// ``)`` //FunctionBody// 
   | //ParameterDeclarations// | -> | //Declarator// 
   |  |  **|**  | //ParameterDeclarations// ``,`` //Declarator// 
+  | //FunctionBody// | -> | ``{`` ``return`` //ExpressionStmt// ``}`` 
+  |  |  **|**  | ``{`` //[Stmt]// ``return`` //ExpressionStmt// ``}`` 
+  |  |  **|**  | ``{`` //[Dec]// //[Stmt]// ``return`` //ExpressionStmt// ``}`` 
   | //Stmt// | -> | //CompoundStmt// 
   |  |  **|**  | //ExpressionStmt// 
   |  |  **|**  | //SelectionStmt// 
   |  |  **|**  | //IterStmt// 
-  |  |  **|**  | //JumpStmt// 
   |  |  **|**  | //PrintStmt// 
   |  |  **|**  | //InitStmt// 
   | //CompoundStmt// | -> | ``{`` ``}`` 
@@ -90,7 +92,6 @@ All other symbols are terminals.
   | //IterStmt// | -> | ``while`` ``(`` //Exp// ``)`` //Stmt// 
   |  |  **|**  | ``for`` ``(`` //ExpressionStmt// //ExpressionStmt// ``)`` //Stmt// 
   |  |  **|**  | ``for`` ``(`` //ExpressionStmt// //ExpressionStmt// //Exp// ``)`` //Stmt// 
-  | //JumpStmt// | -> | ``return`` //Exp// ``;`` 
   | //PrintStmt// | -> | ``print`` //Exp// ``;`` 
   | //InitStmt// | -> | ``init`` //Ident// ``[`` //Exp// ``]`` ``;`` 
   | //[Stmt]// | -> | //Stmt// 

@@ -131,8 +131,8 @@ instance Print StructSpec where
 
 instance Print FunctionDef where
   prt i e = case e of
-   FuncNoParams declarator compoundstmt -> prPrec i 0 (concatD [prt 0 declarator , doc (showString "(") , doc (showString ")") , prt 0 compoundstmt])
-   FuncParams declarator parameterdeclarations compoundstmt -> prPrec i 0 (concatD [prt 0 declarator , doc (showString "(") , prt 0 parameterdeclarations , doc (showString ")") , prt 0 compoundstmt])
+   FuncNoParams declarator functionbody -> prPrec i 0 (concatD [prt 0 declarator , doc (showString "(") , doc (showString ")") , prt 0 functionbody])
+   FuncParams declarator parameterdeclarations functionbody -> prPrec i 0 (concatD [prt 0 declarator , doc (showString "(") , prt 0 parameterdeclarations , doc (showString ")") , prt 0 functionbody])
 
 
 instance Print ParameterDeclarations where
@@ -141,13 +141,19 @@ instance Print ParameterDeclarations where
    MoreParamDec parameterdeclarations declarator -> prPrec i 0 (concatD [prt 0 parameterdeclarations , doc (showString ",") , prt 0 declarator])
 
 
+instance Print FunctionBody where
+  prt i e = case e of
+   FuncBodyOne expressionstmt -> prPrec i 0 (concatD [doc (showString "{") , doc (showString "return") , prt 0 expressionstmt , doc (showString "}")])
+   FuncBodyTwo stmts expressionstmt -> prPrec i 0 (concatD [doc (showString "{") , prt 0 stmts , doc (showString "return") , prt 0 expressionstmt , doc (showString "}")])
+   FuncBodyThree decs stmts expressionstmt -> prPrec i 0 (concatD [doc (showString "{") , prt 0 decs , prt 0 stmts , doc (showString "return") , prt 0 expressionstmt , doc (showString "}")])
+
+
 instance Print Stmt where
   prt i e = case e of
    SComp compoundstmt -> prPrec i 0 (concatD [prt 0 compoundstmt])
    SExpr expressionstmt -> prPrec i 0 (concatD [prt 0 expressionstmt])
    SSel selectionstmt -> prPrec i 0 (concatD [prt 0 selectionstmt])
    SIter iterstmt -> prPrec i 0 (concatD [prt 0 iterstmt])
-   SJump jumpstmt -> prPrec i 0 (concatD [prt 0 jumpstmt])
    SPrint printstmt -> prPrec i 0 (concatD [prt 0 printstmt])
    SInit initstmt -> prPrec i 0 (concatD [prt 0 initstmt])
 
@@ -179,11 +185,6 @@ instance Print IterStmt where
    SIterOne exp stmt -> prPrec i 0 (concatD [doc (showString "while") , doc (showString "(") , prt 0 exp , doc (showString ")") , prt 0 stmt])
    SIterTwo expressionstmt0 expressionstmt stmt -> prPrec i 0 (concatD [doc (showString "for") , doc (showString "(") , prt 0 expressionstmt0 , prt 0 expressionstmt , doc (showString ")") , prt 0 stmt])
    SIterThree expressionstmt0 expressionstmt exp stmt -> prPrec i 0 (concatD [doc (showString "for") , doc (showString "(") , prt 0 expressionstmt0 , prt 0 expressionstmt , prt 0 exp , doc (showString ")") , prt 0 stmt])
-
-
-instance Print JumpStmt where
-  prt i e = case e of
-   SJumpOne exp -> prPrec i 0 (concatD [doc (showString "return") , prt 0 exp , doc (showString ";")])
 
 
 instance Print PrintStmt where

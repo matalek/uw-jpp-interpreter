@@ -36,8 +36,8 @@ data StructSpec =
   deriving (Eq,Ord,Show)
 
 data FunctionDef =
-   FuncNoParams Declarator CompoundStmt
- | FuncParams Declarator ParameterDeclarations CompoundStmt
+   FuncNoParams Declarator FunctionBody
+ | FuncParams Declarator ParameterDeclarations FunctionBody
   deriving (Eq,Ord,Show)
 
 data ParameterDeclarations =
@@ -45,12 +45,17 @@ data ParameterDeclarations =
  | MoreParamDec ParameterDeclarations Declarator
   deriving (Eq,Ord,Show)
 
+data FunctionBody =
+   FuncBodyOne ExpressionStmt
+ | FuncBodyTwo [Stmt] ExpressionStmt
+ | FuncBodyThree [Dec] [Stmt] ExpressionStmt
+  deriving (Eq,Ord,Show)
+
 data Stmt =
    SComp CompoundStmt
  | SExpr ExpressionStmt
  | SSel SelectionStmt
  | SIter IterStmt
- | SJump JumpStmt
  | SPrint PrintStmt
  | SInit InitStmt
   deriving (Eq,Ord,Show)
@@ -75,10 +80,6 @@ data IterStmt =
    SIterOne Exp Stmt
  | SIterTwo ExpressionStmt ExpressionStmt Stmt
  | SIterThree ExpressionStmt ExpressionStmt Exp Stmt
-  deriving (Eq,Ord,Show)
-
-data JumpStmt =
-   SJumpOne Exp
   deriving (Eq,Ord,Show)
 
 data PrintStmt =

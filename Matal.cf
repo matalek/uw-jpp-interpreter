@@ -1,7 +1,7 @@
 -- Aleksander Matusiak
 -- EBNF grammar of Matal language
 
-entrypoints Stmt;
+entrypoints Program;
 
 Progr.  Program ::= [ExternalDeclaration] ;
 
@@ -31,17 +31,21 @@ Struct.      StructSpec ::= "struct" Ident "{" [Dec] "}" ;
 (:[]).   [Ident] ::= Ident ;
 (:).     [Ident] ::= Ident "," [Ident] ;
 
-FuncNoParams.   FunctionDef ::= Declarator "(" ")" CompoundStmt;
-FuncParams.   FunctionDef ::= Declarator "(" ParameterDeclarations ")" CompoundStmt;
+FuncNoParams.   FunctionDef ::= Declarator "(" ")" FunctionBody;
+FuncParams.   FunctionDef ::= Declarator "(" ParameterDeclarations ")" FunctionBody;
 
 ParamDec.     ParameterDeclarations ::= Declarator ;
 MoreParamDec. ParameterDeclarations ::= ParameterDeclarations "," Declarator ;
+
+FuncBodyOne.   FunctionBody ::= "{" "return" ExpressionStmt "}" ;
+FuncBodyTwo.  FunctionBody ::= "{" [Stmt] "return" ExpressionStmt "}" ;
+FuncBodyThree.  FunctionBody ::= "{" [Dec] [Stmt] "return" ExpressionStmt "}" ;
+
 
 SComp.    Stmt ::= CompoundStmt ;
 SExpr.    Stmt ::= ExpressionStmt;
 SSel.     Stmt ::= SelectionStmt;
 SIter.    Stmt ::= IterStmt;
-SJump.    Stmt ::= JumpStmt;
 SPrint.   Stmt ::= PrintStmt;
 SInit.    Stmt ::= InitStmt;
 
@@ -58,8 +62,6 @@ SSelTwo.    SelectionStmt ::= "if" "(" Exp ")" Stmt "else" Stmt ;
 SIterOne.   IterStmt ::= "while" "(" Exp ")" Stmt;
 SIterTwo. IterStmt ::= "for" "(" ExpressionStmt ExpressionStmt ")" Stmt ;
 SIterThree.  IterStmt ::= "for" "(" ExpressionStmt ExpressionStmt Exp ")" Stmt;
-
-SJumpOne.  JumpStmt ::= "return" Exp ";" ;
 
 SPrintOne.     PrintStmt ::= "print" Exp ";" ;
 

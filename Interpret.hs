@@ -13,5 +13,5 @@ main = do
   putStrLn ""
   
 exec input = 
-  let Ok s = pStmt (myLexer input) 
+  let Ok s = pProgram (myLexer input) 
   in interpret s
