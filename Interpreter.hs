@@ -209,24 +209,22 @@ transExternalDeclaration x = case x of
 
 transFuncDef :: FunctionDef -> Interpreter Env
 transFuncDef (FuncNoParams (DVariable _ funName) (FuncBodyOne ds stmts es)) = do
-  env <- ask
-  env' <- transDec ds
+  env <- transDec ds
   let fun _ = do
         local (\_ -> newEnv) $ transStmts stmts
         case es of
           SExprOne -> return $ Int 0 -- procedure, returning whatever
           SExprTwo e -> local (\_ -> newEnv) $ transExp e
         where
-          newEnv = setFun funName (Fun fun) env'
-  return $ setFun funName (Fun fun) env'
+          newEnv = setFun funName (Fun fun) env
+  return $ setFun funName (Fun fun) env
 
 transFuncDef (FuncParams (DVariable _ funName) params (FuncBodyOne ds stmts es)) = do
-  env <- ask
+  env <- transParams params
+  env' <- local (\_ -> env) $ transDec ds
   let fun arguments = do
-        env' <- transArguments params arguments
-        env'' <- local (\_ -> env') $ transDec ds
-        store <- get
-        let newEnv = setFun funName (Fun fun) env''
+        transArguments params arguments
+        let newEnv = setFun funName (Fun fun) env'
         local (\_ -> newEnv) $ transStmts stmts
         case es of
           SExprOne -> return $ Int 0 -- procedure, returning whatever
@@ -234,14 +232,19 @@ transFuncDef (FuncParams (DVariable _ funName) params (FuncBodyOne ds stmts es))
           
   return $ setFun funName (Fun fun) env
 
-transArguments :: [Declarator] -> [Val] -> Interpreter Env
-transArguments [] [] = ask
-transArguments ((DVariable _ var):ds) (v:vs) = do
+transParams :: [Declarator] -> Interpreter Env
+transParams [] = ask
+transParams ((DVariable _ var):ds) = do
   loc <- alloc
-  modify (\store -> insert loc v store)
-  s <- get
-  newEnv <- local (setLoc var loc) $ transArguments ds vs
+  newEnv <- local (setLoc var loc) $ transParams ds
   return newEnv
+
+transArguments :: [Declarator] -> [Val] -> Interpreter ()
+transArguments [] [] = return ()
+transArguments ((DVariable _ var):ds) (v:vs) = do
+ setVal var v
+ transArguments ds vs
+ 
 
 transExternalDeclarations :: [ExternalDeclaration] -> Interpreter Env
 transExternalDeclarations [] = ask
