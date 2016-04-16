@@ -105,6 +105,10 @@ instance Print Declarator where
   prt i e = case e of
    DVariable typespecifier id -> prPrec i 0 (concatD [prt 0 typespecifier , prt 0 id])
 
+  prtList es = case es of
+   [] -> (concatD [])
+   [x] -> (concatD [prt 0 x])
+   x:xs -> (concatD [prt 0 x , doc (showString ",") , prt 0 xs])
 
 instance Print Dec where
   prt i e = case e of
@@ -132,13 +136,7 @@ instance Print StructSpec where
 instance Print FunctionDef where
   prt i e = case e of
    FuncNoParams declarator functionbody -> prPrec i 0 (concatD [prt 0 declarator , doc (showString "(") , doc (showString ")") , prt 0 functionbody])
-   FuncParams declarator parameterdeclarations functionbody -> prPrec i 0 (concatD [prt 0 declarator , doc (showString "(") , prt 0 parameterdeclarations , doc (showString ")") , prt 0 functionbody])
-
-
-instance Print ParameterDeclarations where
-  prt i e = case e of
-   ParamDec declarator -> prPrec i 0 (concatD [prt 0 declarator])
-   MoreParamDec parameterdeclarations declarator -> prPrec i 0 (concatD [prt 0 parameterdeclarations , doc (showString ",") , prt 0 declarator])
+   FuncParams declarator declarators functionbody -> prPrec i 0 (concatD [prt 0 declarator , doc (showString "(") , prt 0 declarators , doc (showString ")") , prt 0 functionbody])
 
 
 instance Print FunctionBody where

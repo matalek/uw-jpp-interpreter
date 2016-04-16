@@ -70,9 +70,10 @@ All other symbols are terminals.
   | //[Ident]// | -> | //Ident// 
   |  |  **|**  | //Ident// ``,`` //[Ident]// 
   | //FunctionDef// | -> | //Declarator// ``(`` ``)`` //FunctionBody// 
-  |  |  **|**  | //Declarator// ``(`` //ParameterDeclarations// ``)`` //FunctionBody// 
-  | //ParameterDeclarations// | -> | //Declarator// 
-  |  |  **|**  | //ParameterDeclarations// ``,`` //Declarator// 
+  |  |  **|**  | //Declarator// ``(`` //[Declarator]// ``)`` //FunctionBody// 
+  | //[Declarator]// | -> | **eps**
+  |  |  **|**  | //Declarator// 
+  |  |  **|**  | //Declarator// ``,`` //[Declarator]// 
   | //FunctionBody// | -> | ``{`` //[Dec]// //[Stmt]// ``return`` //ExpressionStmt// ``}`` 
   | //Stmt// | -> | //CompoundStmt// 
   |  |  **|**  | //ExpressionStmt// 

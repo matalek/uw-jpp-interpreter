@@ -37,12 +37,7 @@ data StructSpec =
 
 data FunctionDef =
    FuncNoParams Declarator FunctionBody
- | FuncParams Declarator ParameterDeclarations FunctionBody
-  deriving (Eq,Ord,Show)
-
-data ParameterDeclarations =
-   ParamDec Declarator
- | MoreParamDec ParameterDeclarations Declarator
+ | FuncParams Declarator [Declarator] FunctionBody
   deriving (Eq,Ord,Show)
 
 data FunctionBody =

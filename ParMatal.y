@@ -116,12 +116,13 @@ ListIdent : Ident { (:[]) $1 }
 
 FunctionDef :: { FunctionDef }
 FunctionDef : Declarator '(' ')' FunctionBody { FuncNoParams $1 $4 } 
-  | Declarator '(' ParameterDeclarations ')' FunctionBody { FuncParams $1 $3 $5 }
+  | Declarator '(' ListDeclarator ')' FunctionBody { FuncParams $1 $3 $5 }
 
 
-ParameterDeclarations :: { ParameterDeclarations }
-ParameterDeclarations : Declarator { ParamDec $1 } 
-  | ParameterDeclarations ',' Declarator { MoreParamDec $1 $3 }
+ListDeclarator :: { [Declarator] }
+ListDeclarator : {- empty -} { [] } 
+  | Declarator { (:[]) $1 }
+  | Declarator ',' ListDeclarator { (:) $1 $3 }
 
 
 FunctionBody :: { FunctionBody }

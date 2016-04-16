@@ -54,13 +54,7 @@ transStructSpec x = case x of
 transFunctionDef :: FunctionDef -> Result
 transFunctionDef x = case x of
   FuncNoParams declarator functionbody  -> failure x
-  FuncParams declarator parameterdeclarations functionbody  -> failure x
-
-
-transParameterDeclarations :: ParameterDeclarations -> Result
-transParameterDeclarations x = case x of
-  ParamDec declarator  -> failure x
-  MoreParamDec parameterdeclarations declarator  -> failure x
+  FuncParams declarator declarators functionbody  -> failure x
 
 
 transFunctionBody :: FunctionBody -> Result

@@ -119,12 +119,13 @@ All other symbols are terminals.\\
 
 \begin{tabular}{lll}
 {\nonterminal{FunctionDef}} & {\arrow}  &{\nonterminal{Declarator}} {\terminal{(}} {\terminal{)}} {\nonterminal{FunctionBody}}  \\
- & {\delimit}  &{\nonterminal{Declarator}} {\terminal{(}} {\nonterminal{ParameterDeclarations}} {\terminal{)}} {\nonterminal{FunctionBody}}  \\
+ & {\delimit}  &{\nonterminal{Declarator}} {\terminal{(}} {\nonterminal{ListDeclarator}} {\terminal{)}} {\nonterminal{FunctionBody}}  \\
 \end{tabular}\\
 
 \begin{tabular}{lll}
-{\nonterminal{ParameterDeclarations}} & {\arrow}  &{\nonterminal{Declarator}}  \\
- & {\delimit}  &{\nonterminal{ParameterDeclarations}} {\terminal{,}} {\nonterminal{Declarator}}  \\
+{\nonterminal{ListDeclarator}} & {\arrow}  &{\emptyP} \\
+ & {\delimit}  &{\nonterminal{Declarator}}  \\
+ & {\delimit}  &{\nonterminal{Declarator}} {\terminal{,}} {\nonterminal{ListDeclarator}}  \\
 \end{tabular}\\
 
 \begin{tabular}{lll}

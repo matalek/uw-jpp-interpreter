@@ -10,7 +10,7 @@ import ErrM
 type Var = Ident
 type FName = Ident
 type Loc = Int
-data Val = Int Int | Bool Bool
+data Val = Int Int | Bool Bool deriving (Show)
 newtype Fun = Fun ([Val] -> Interpreter Val)
 
 type Store = Map Loc Val
@@ -61,7 +61,7 @@ showVal (Bool b)
 alloc :: Interpreter Loc
 alloc = do
   store <- get
-  let loc = if size store /= 0 then (fst $ findMax store) else 0 + 1
+  let loc = if size store /= 0 then (fst $ findMax store) + 1 else 1
   put $ insert loc (Int 0) store
   return loc
 
@@ -173,6 +173,10 @@ transExp (EGe e1 e2) = evalBinOpBool e1 e2 (>=)
 transExp (EFunk (EVar f)) = do
   (Fun fun) <- getFun f
   fun []
+transExp (EFunkPar (EVar f) exps) = do
+  arguments <- mapM transExp exps
+  (Fun fun) <- getFun f
+  fun arguments
 
 evalBinOpInt :: Exp -> Exp -> (Int -> Int -> Int) -> Interpreter Val
 evalBinOpInt e1 e2 op = do
@@ -215,6 +219,29 @@ transFuncDef (FuncNoParams (DVariable _ funName) (FuncBodyOne ds stmts es)) = do
         where
           newEnv = setFun funName (Fun fun) env'
   return $ setFun funName (Fun fun) env'
+
+transFuncDef (FuncParams (DVariable _ funName) params (FuncBodyOne ds stmts es)) = do
+  env <- ask
+  let fun arguments = do
+        env' <- transArguments params arguments
+        env'' <- local (\_ -> env') $ transDec ds
+        store <- get
+        let newEnv = setFun funName (Fun fun) env''
+        local (\_ -> newEnv) $ transStmts stmts
+        case es of
+          SExprOne -> return $ Int 0 -- procedure, returning whatever
+          SExprTwo e -> local (\_ -> newEnv) $ transExp e
+          
+  return $ setFun funName (Fun fun) env
+
+transArguments :: [Declarator] -> [Val] -> Interpreter Env
+transArguments [] [] = ask
+transArguments ((DVariable _ var):ds) (v:vs) = do
+  loc <- alloc
+  modify (\store -> insert loc v store)
+  s <- get
+  newEnv <- local (setLoc var loc) $ transArguments ds vs
+  return newEnv
 
 transExternalDeclarations :: [ExternalDeclaration] -> Interpreter Env
 transExternalDeclarations [] = ask
