@@ -58,7 +58,7 @@ All other symbols are terminals.
   |  |  **|**  | //StructSpec// 
   | //Declarator// | -> | //TypeSpecifier// //Ident// 
   | //Dec// | -> | //Declarator// ``;`` 
-  | //[Dec]// | -> | //Dec// 
+  | //[Dec]// | -> | **eps**
   |  |  **|**  | //Dec// //[Dec]// 
   | //TypeSpecifier// | -> | ``void`` 
   |  |  **|**  | ``int`` 
@@ -73,18 +73,14 @@ All other symbols are terminals.
   |  |  **|**  | //Declarator// ``(`` //ParameterDeclarations// ``)`` //FunctionBody// 
   | //ParameterDeclarations// | -> | //Declarator// 
   |  |  **|**  | //ParameterDeclarations// ``,`` //Declarator// 
-  | //FunctionBody// | -> | ``{`` ``return`` //ExpressionStmt// ``}`` 
-  |  |  **|**  | ``{`` //[Stmt]// ``return`` //ExpressionStmt// ``}`` 
-  |  |  **|**  | ``{`` //[Dec]// //[Stmt]// ``return`` //ExpressionStmt// ``}`` 
+  | //FunctionBody// | -> | ``{`` //[Dec]// //[Stmt]// ``return`` //ExpressionStmt// ``}`` 
   | //Stmt// | -> | //CompoundStmt// 
   |  |  **|**  | //ExpressionStmt// 
   |  |  **|**  | //SelectionStmt// 
   |  |  **|**  | //IterStmt// 
   |  |  **|**  | //PrintStmt// 
   |  |  **|**  | //InitStmt// 
-  | //CompoundStmt// | -> | ``{`` ``}`` 
-  |  |  **|**  | ``{`` //[Stmt]// ``}`` 
-  |  |  **|**  | ``{`` //[Dec]// //[Stmt]// ``}`` 
+  | //CompoundStmt// | -> | ``{`` //[Dec]// //[Stmt]// ``}`` 
   | //ExpressionStmt// | -> | ``;`` 
   |  |  **|**  | //Exp// ``;`` 
   | //SelectionStmt// | -> | ``if`` ``(`` //Exp// ``)`` //Stmt// 
@@ -94,7 +90,7 @@ All other symbols are terminals.
   |  |  **|**  | ``for`` ``(`` //ExpressionStmt// //ExpressionStmt// //Exp// ``)`` //Stmt// 
   | //PrintStmt// | -> | ``print`` //Exp// ``;`` 
   | //InitStmt// | -> | ``init`` //Ident// ``[`` //Exp// ``]`` ``;`` 
-  | //[Stmt]// | -> | //Stmt// 
+  | //[Stmt]// | -> | **eps**
   |  |  **|**  | //Stmt// //[Stmt]// 
   | //Exp// | -> | //Exp// ``,`` //Exp1// 
   |  |  **|**  | //Exp1// 

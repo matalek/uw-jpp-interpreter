@@ -95,7 +95,7 @@ All other symbols are terminals.\\
 \end{tabular}\\
 
 \begin{tabular}{lll}
-{\nonterminal{ListDec}} & {\arrow}  &{\nonterminal{Dec}}  \\
+{\nonterminal{ListDec}} & {\arrow}  &{\emptyP} \\
  & {\delimit}  &{\nonterminal{Dec}} {\nonterminal{ListDec}}  \\
 \end{tabular}\\
 
@@ -128,9 +128,7 @@ All other symbols are terminals.\\
 \end{tabular}\\
 
 \begin{tabular}{lll}
-{\nonterminal{FunctionBody}} & {\arrow}  &{\terminal{\{}} {\terminal{return}} {\nonterminal{ExpressionStmt}} {\terminal{\}}}  \\
- & {\delimit}  &{\terminal{\{}} {\nonterminal{ListStmt}} {\terminal{return}} {\nonterminal{ExpressionStmt}} {\terminal{\}}}  \\
- & {\delimit}  &{\terminal{\{}} {\nonterminal{ListDec}} {\nonterminal{ListStmt}} {\terminal{return}} {\nonterminal{ExpressionStmt}} {\terminal{\}}}  \\
+{\nonterminal{FunctionBody}} & {\arrow}  &{\terminal{\{}} {\nonterminal{ListDec}} {\nonterminal{ListStmt}} {\terminal{return}} {\nonterminal{ExpressionStmt}} {\terminal{\}}}  \\
 \end{tabular}\\
 
 \begin{tabular}{lll}
@@ -143,9 +141,7 @@ All other symbols are terminals.\\
 \end{tabular}\\
 
 \begin{tabular}{lll}
-{\nonterminal{CompoundStmt}} & {\arrow}  &{\terminal{\{}} {\terminal{\}}}  \\
- & {\delimit}  &{\terminal{\{}} {\nonterminal{ListStmt}} {\terminal{\}}}  \\
- & {\delimit}  &{\terminal{\{}} {\nonterminal{ListDec}} {\nonterminal{ListStmt}} {\terminal{\}}}  \\
+{\nonterminal{CompoundStmt}} & {\arrow}  &{\terminal{\{}} {\nonterminal{ListDec}} {\nonterminal{ListStmt}} {\terminal{\}}}  \\
 \end{tabular}\\
 
 \begin{tabular}{lll}
@@ -173,7 +169,7 @@ All other symbols are terminals.\\
 \end{tabular}\\
 
 \begin{tabular}{lll}
-{\nonterminal{ListStmt}} & {\arrow}  &{\nonterminal{Stmt}}  \\
+{\nonterminal{ListStmt}} & {\arrow}  &{\emptyP} \\
  & {\delimit}  &{\nonterminal{Stmt}} {\nonterminal{ListStmt}}  \\
 \end{tabular}\\
 

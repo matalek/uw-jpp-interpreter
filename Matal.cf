@@ -16,7 +16,7 @@ DVariable.      Declarator ::= TypeSpecifier Ident ;
 
 Declaration.     Dec ::= Declarator ";";
 
-(:[]).   [Dec] ::= Dec ;
+[].   [Dec] ::= ;
 (:).     [Dec] ::= Dec [Dec] ;
 
 TVoid.        TypeSpecifier ::= "void";
@@ -37,10 +37,7 @@ FuncParams.   FunctionDef ::= Declarator "(" ParameterDeclarations ")" FunctionB
 ParamDec.     ParameterDeclarations ::= Declarator ;
 MoreParamDec. ParameterDeclarations ::= ParameterDeclarations "," Declarator ;
 
-FuncBodyOne.   FunctionBody ::= "{" "return" ExpressionStmt "}" ;
-FuncBodyTwo.  FunctionBody ::= "{" [Stmt] "return" ExpressionStmt "}" ;
-FuncBodyThree.  FunctionBody ::= "{" [Dec] [Stmt] "return" ExpressionStmt "}" ;
-
+FuncBodyOne.  FunctionBody ::= "{" [Dec] [Stmt] "return" ExpressionStmt "}" ;
 
 SComp.    Stmt ::= CompoundStmt ;
 SExpr.    Stmt ::= ExpressionStmt;
@@ -49,9 +46,7 @@ SIter.    Stmt ::= IterStmt;
 SPrint.   Stmt ::= PrintStmt;
 SInit.    Stmt ::= InitStmt;
 
-SCompOne.   CompoundStmt ::= "{" "}" ;
-SCompTwo.   CompoundStmt ::= "{" [Stmt] "}" ;
-SCompThree.  CompoundStmt ::= "{" [Dec] [Stmt] "}" ;
+SCompOne.  CompoundStmt ::= "{" [Dec] [Stmt] "}" ;
 
 SExprOne.   ExpressionStmt ::= ";" ;
 SExprTwo.   ExpressionStmt ::= Exp ";" ;
@@ -67,7 +62,7 @@ SPrintOne.     PrintStmt ::= "print" Exp ";" ;
 
 SInitOne.      InitStmt ::= "init" Ident "[" Exp "]" ";" ;
 
-(:[]).   [Stmt] ::= Stmt ;
+[].   [Stmt] ::= ;
 (:).     [Stmt] ::= Stmt [Stmt];
 
 EComma.       Exp ::= Exp "," Exp1;

@@ -65,9 +65,7 @@ transParameterDeclarations x = case x of
 
 transFunctionBody :: FunctionBody -> Result
 transFunctionBody x = case x of
-  FuncBodyOne expressionstmt  -> failure x
-  FuncBodyTwo stmts expressionstmt  -> failure x
-  FuncBodyThree decs stmts expressionstmt  -> failure x
+  FuncBodyOne decs stmts expressionstmt  -> failure x
 
 
 transStmt :: Stmt -> Result
@@ -82,9 +80,7 @@ transStmt x = case x of
 
 transCompoundStmt :: CompoundStmt -> Result
 transCompoundStmt x = case x of
-  SCompOne  -> failure x
-  SCompTwo stmts  -> failure x
-  SCompThree decs stmts  -> failure x
+  SCompOne decs stmts  -> failure x
 
 
 transExpressionStmt :: ExpressionStmt -> Result

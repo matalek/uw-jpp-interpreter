@@ -66,7 +66,7 @@ alloc = do
   return loc
 
 skip :: Stmt
-skip = SComp (SCompOne)
+skip = SComp (SCompOne [] [])
 
 -- Right now only for statements
 interpret :: Program -> IO ()
@@ -124,7 +124,7 @@ transIterStmt (SIterThree es1 es2 e s) = do
         case es2 of
           SExprOne -> EConst ETrue
           (SExprTwo c) -> c
-  let loop = SComp (SCompTwo [s, (SExpr (SExprTwo e))])
+  let loop = SComp (SCompOne [] [s, (SExpr (SExprTwo e))])
   transStmts [(SExpr es1), (SIter (SIterOne cond loop))]
 
 -- Print statements
@@ -135,9 +135,7 @@ transPrintStmt (SPrintOne  e) = do
 
 -- Compound statements
 transCompoundStmt :: CompoundStmt -> Interpreter ()
-transCompoundStmt SCompOne = return ()
-transCompoundStmt (SCompTwo s) = transStmts s
-transCompoundStmt (SCompThree ds ss) = do
+transCompoundStmt (SCompOne ds ss) = do
   newEnv <- transDec ds
   local (\_ -> newEnv) $ transStmts ss
 
@@ -206,14 +204,15 @@ transExternalDeclaration x = case x of
   -- StructDec structspec  -> failure x
 
 transFuncDef :: FunctionDef -> Interpreter Env
-transFuncDef (FuncNoParams (DVariable _ funName) (FuncBodyTwo stmts es)) = do
+transFuncDef (FuncNoParams (DVariable _ funName) (FuncBodyOne ds stmts es)) = do
   env <- ask
+  newEnv <- transDec ds
   let fun _ = do
-        local (\_ -> env) $ transStmts stmts
+        local (\_ -> newEnv) $ transStmts stmts
         case es of
           SExprOne -> return $ Int 0 -- procedure, returning whatever
-          SExprTwo e -> local (\_ -> env) $ transExp e
-  return $ setFun funName (Fun fun) env
+          SExprTwo e -> local (\_ -> newEnv) $ transExp e
+  return $ setFun funName (Fun fun) newEnv
 
 transExternalDeclarations :: [ExternalDeclaration] -> Interpreter Env
 transExternalDeclarations [] = ask

@@ -92,8 +92,8 @@ Dec : Declarator ';' { Declaration $1 }
 
 
 ListDec :: { [Dec] }
-ListDec : Dec { (:[]) $1 } 
-  | Dec ListDec { (:) $1 $2 }
+ListDec : {- empty -} { [] } 
+  | ListDec Dec { flip (:) $1 $2 }
 
 
 TypeSpecifier :: { TypeSpecifier }
@@ -106,7 +106,7 @@ TypeSpecifier : 'void' { TVoid }
 
 
 StructSpec :: { StructSpec }
-StructSpec : 'struct' Ident '{' ListDec '}' { Struct $2 $4 } 
+StructSpec : 'struct' Ident '{' ListDec '}' { Struct $2 (reverse $4) } 
 
 
 ListIdent :: { [Ident] }
@@ -125,9 +125,7 @@ ParameterDeclarations : Declarator { ParamDec $1 }
 
 
 FunctionBody :: { FunctionBody }
-FunctionBody : '{' 'return' ExpressionStmt '}' { FuncBodyOne $3 } 
-  | '{' ListStmt 'return' ExpressionStmt '}' { FuncBodyTwo $2 $4 }
-  | '{' ListDec ListStmt 'return' ExpressionStmt '}' { FuncBodyThree $2 $3 $5 }
+FunctionBody : '{' ListDec ListStmt 'return' ExpressionStmt '}' { FuncBodyOne (reverse $2) (reverse $3) $5 } 
 
 
 Stmt :: { Stmt }
@@ -140,9 +138,7 @@ Stmt : CompoundStmt { SComp $1 }
 
 
 CompoundStmt :: { CompoundStmt }
-CompoundStmt : '{' '}' { SCompOne } 
-  | '{' ListStmt '}' { SCompTwo $2 }
-  | '{' ListDec ListStmt '}' { SCompThree $2 $3 }
+CompoundStmt : '{' ListDec ListStmt '}' { SCompOne (reverse $2) (reverse $3) } 
 
 
 ExpressionStmt :: { ExpressionStmt }
@@ -170,8 +166,8 @@ InitStmt : 'init' Ident '[' Exp ']' ';' { SInitOne $2 $4 }
 
 
 ListStmt :: { [Stmt] }
-ListStmt : Stmt { (:[]) $1 } 
-  | Stmt ListStmt { (:) $1 $2 }
+ListStmt : {- empty -} { [] } 
+  | ListStmt Stmt { flip (:) $1 $2 }
 
 
 Exp :: { Exp }

@@ -46,9 +46,7 @@ data ParameterDeclarations =
   deriving (Eq,Ord,Show)
 
 data FunctionBody =
-   FuncBodyOne ExpressionStmt
- | FuncBodyTwo [Stmt] ExpressionStmt
- | FuncBodyThree [Dec] [Stmt] ExpressionStmt
+   FuncBodyOne [Dec] [Stmt] ExpressionStmt
   deriving (Eq,Ord,Show)
 
 data Stmt =
@@ -61,9 +59,7 @@ data Stmt =
   deriving (Eq,Ord,Show)
 
 data CompoundStmt =
-   SCompOne
- | SCompTwo [Stmt]
- | SCompThree [Dec] [Stmt]
+   SCompOne [Dec] [Stmt]
   deriving (Eq,Ord,Show)
 
 data ExpressionStmt =

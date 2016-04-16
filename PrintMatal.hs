@@ -111,7 +111,7 @@ instance Print Dec where
    Declaration declarator -> prPrec i 0 (concatD [prt 0 declarator , doc (showString ";")])
 
   prtList es = case es of
-   [x] -> (concatD [prt 0 x])
+   [] -> (concatD [])
    x:xs -> (concatD [prt 0 x , prt 0 xs])
 
 instance Print TypeSpecifier where
@@ -143,9 +143,7 @@ instance Print ParameterDeclarations where
 
 instance Print FunctionBody where
   prt i e = case e of
-   FuncBodyOne expressionstmt -> prPrec i 0 (concatD [doc (showString "{") , doc (showString "return") , prt 0 expressionstmt , doc (showString "}")])
-   FuncBodyTwo stmts expressionstmt -> prPrec i 0 (concatD [doc (showString "{") , prt 0 stmts , doc (showString "return") , prt 0 expressionstmt , doc (showString "}")])
-   FuncBodyThree decs stmts expressionstmt -> prPrec i 0 (concatD [doc (showString "{") , prt 0 decs , prt 0 stmts , doc (showString "return") , prt 0 expressionstmt , doc (showString "}")])
+   FuncBodyOne decs stmts expressionstmt -> prPrec i 0 (concatD [doc (showString "{") , prt 0 decs , prt 0 stmts , doc (showString "return") , prt 0 expressionstmt , doc (showString "}")])
 
 
 instance Print Stmt where
@@ -158,14 +156,12 @@ instance Print Stmt where
    SInit initstmt -> prPrec i 0 (concatD [prt 0 initstmt])
 
   prtList es = case es of
-   [x] -> (concatD [prt 0 x])
+   [] -> (concatD [])
    x:xs -> (concatD [prt 0 x , prt 0 xs])
 
 instance Print CompoundStmt where
   prt i e = case e of
-   SCompOne  -> prPrec i 0 (concatD [doc (showString "{") , doc (showString "}")])
-   SCompTwo stmts -> prPrec i 0 (concatD [doc (showString "{") , prt 0 stmts , doc (showString "}")])
-   SCompThree decs stmts -> prPrec i 0 (concatD [doc (showString "{") , prt 0 decs , prt 0 stmts , doc (showString "}")])
+   SCompOne decs stmts -> prPrec i 0 (concatD [doc (showString "{") , prt 0 decs , prt 0 stmts , doc (showString "}")])
 
 
 instance Print ExpressionStmt where
