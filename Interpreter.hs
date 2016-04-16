@@ -206,13 +206,15 @@ transExternalDeclaration x = case x of
 transFuncDef :: FunctionDef -> Interpreter Env
 transFuncDef (FuncNoParams (DVariable _ funName) (FuncBodyOne ds stmts es)) = do
   env <- ask
-  newEnv <- transDec ds
+  env' <- transDec ds
   let fun _ = do
         local (\_ -> newEnv) $ transStmts stmts
         case es of
           SExprOne -> return $ Int 0 -- procedure, returning whatever
           SExprTwo e -> local (\_ -> newEnv) $ transExp e
-  return $ setFun funName (Fun fun) newEnv
+        where
+          newEnv = setFun funName (Fun fun) env'
+  return $ setFun funName (Fun fun) env'
 
 transExternalDeclarations :: [ExternalDeclaration] -> Interpreter Env
 transExternalDeclarations [] = ask
