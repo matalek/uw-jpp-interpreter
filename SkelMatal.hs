@@ -58,7 +58,7 @@ transFunctionDef x = case x of
 
 transFunctionBody :: FunctionBody -> Result
 transFunctionBody x = case x of
-  FuncBodyOne decs stmts expressionstmt  -> failure x
+  FuncBodyOne decs functiondefs stmts expressionstmt  -> failure x
 
 
 transStmt :: Stmt -> Result

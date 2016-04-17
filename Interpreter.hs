@@ -256,17 +256,24 @@ transExternalDeclaration x = case x of
   Global dec  -> transDec [dec]
   StructDec structspec  -> transStructDec structspec
 
-transFuncDef (FuncParams (DVariable _ funName) params (FuncBodyOne ds stmts es)) = do
+transFuncDef (FuncParams (DVariable _ funName) params (FuncBodyOne ds fs stmts es)) = do
   env <- ask
   let fun arguments = do
         env' <- local (\_ -> env) $ transArguments params arguments
         env'' <- local (\_ -> env') $ transDec ds
-        let newEnv = setFun funName (Fun fun) env''
-        local (\_ -> newEnv) $ transStmts stmts
+        let env'''  = setFun funName (Fun fun) env''
+        env'''' <- local (\_ -> env''') $ transFuncDefs fs
+        local (\_ -> env'''') $ transStmts stmts
         case es of
           SExprOne -> return $ Int 0 -- procedure, returning whatever
-          SExprTwo e -> local (\_ -> newEnv) $ transExp e
+          SExprTwo e -> local (\_ -> env'''') $ transExp e
   return $ setFun funName (Fun fun) env
+
+transFuncDefs :: [FunctionDef] -> Interpreter Env
+transFuncDefs [] = ask
+transFuncDefs (f:fs) = do
+  newEnv1 <- transFuncDef f
+  local (\_ -> newEnv1) $ transFuncDefs fs
 
 transParams :: [Declarator] -> Interpreter Env
 transParams [] = ask

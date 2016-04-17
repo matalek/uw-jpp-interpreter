@@ -41,10 +41,10 @@ The reserved words used in Matal are the following: \\
 
 \begin{tabular}{lll}
 {\reserved{bool}} &{\reserved{else}} &{\reserved{false}} \\
-{\reserved{for}} &{\reserved{if}} &{\reserved{init}} \\
-{\reserved{int}} &{\reserved{print}} &{\reserved{return}} \\
-{\reserved{struct}} &{\reserved{true}} &{\reserved{void}} \\
-{\reserved{while}} & & \\
+{\reserved{for}} &{\reserved{function}} &{\reserved{if}} \\
+{\reserved{init}} &{\reserved{int}} &{\reserved{print}} \\
+{\reserved{return}} &{\reserved{struct}} &{\reserved{true}} \\
+{\reserved{void}} &{\reserved{while}} & \\
 \end{tabular}\\
 
 The symbols used in Matal are the following: \\
@@ -118,7 +118,7 @@ All other symbols are terminals.\\
 \end{tabular}\\
 
 \begin{tabular}{lll}
-{\nonterminal{FunctionDef}} & {\arrow}  &{\nonterminal{Declarator}} {\terminal{(}} {\nonterminal{ListDeclarator}} {\terminal{)}} {\nonterminal{FunctionBody}}  \\
+{\nonterminal{FunctionDef}} & {\arrow}  &{\terminal{function}} {\nonterminal{Declarator}} {\terminal{(}} {\nonterminal{ListDeclarator}} {\terminal{)}} {\nonterminal{FunctionBody}}  \\
 \end{tabular}\\
 
 \begin{tabular}{lll}
@@ -128,7 +128,12 @@ All other symbols are terminals.\\
 \end{tabular}\\
 
 \begin{tabular}{lll}
-{\nonterminal{FunctionBody}} & {\arrow}  &{\terminal{\{}} {\nonterminal{ListDec}} {\nonterminal{ListStmt}} {\terminal{return}} {\nonterminal{ExpressionStmt}} {\terminal{\}}}  \\
+{\nonterminal{ListFunctionDef}} & {\arrow}  &{\emptyP} \\
+ & {\delimit}  &{\nonterminal{FunctionDef}} {\nonterminal{ListFunctionDef}}  \\
+\end{tabular}\\
+
+\begin{tabular}{lll}
+{\nonterminal{FunctionBody}} & {\arrow}  &{\terminal{\{}} {\nonterminal{ListDec}} {\nonterminal{ListFunctionDef}} {\nonterminal{ListStmt}} {\terminal{return}} {\nonterminal{ExpressionStmt}} {\terminal{\}}}  \\
 \end{tabular}\\
 
 \begin{tabular}{lll}

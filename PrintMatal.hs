@@ -135,12 +135,15 @@ instance Print StructSpec where
 
 instance Print FunctionDef where
   prt i e = case e of
-   FuncParams declarator declarators functionbody -> prPrec i 0 (concatD [prt 0 declarator , doc (showString "(") , prt 0 declarators , doc (showString ")") , prt 0 functionbody])
+   FuncParams declarator declarators functionbody -> prPrec i 0 (concatD [doc (showString "function") , prt 0 declarator , doc (showString "(") , prt 0 declarators , doc (showString ")") , prt 0 functionbody])
 
+  prtList es = case es of
+   [] -> (concatD [])
+   x:xs -> (concatD [prt 0 x , prt 0 xs])
 
 instance Print FunctionBody where
   prt i e = case e of
-   FuncBodyOne decs stmts expressionstmt -> prPrec i 0 (concatD [doc (showString "{") , prt 0 decs , prt 0 stmts , doc (showString "return") , prt 0 expressionstmt , doc (showString "}")])
+   FuncBodyOne decs functiondefs stmts expressionstmt -> prPrec i 0 (concatD [doc (showString "{") , prt 0 decs , prt 0 functiondefs , prt 0 stmts , doc (showString "return") , prt 0 expressionstmt , doc (showString "}")])
 
 
 instance Print Stmt where

@@ -31,11 +31,12 @@ Struct.      StructSpec ::= "struct" Ident "{" [Dec] "}" ;
 (:[]).   [Ident] ::= Ident ;
 (:).     [Ident] ::= Ident "," [Ident] ;
 
-FuncParams.   FunctionDef ::= Declarator "(" [Declarator] ")" FunctionBody;
+FuncParams.   FunctionDef ::= "function" Declarator "(" [Declarator] ")" FunctionBody;
 
 separator Declarator ",";
+separator FunctionDef "";
 
-FuncBodyOne.  FunctionBody ::= "{" [Dec] [Stmt] "return" ExpressionStmt "}" ;
+FuncBodyOne.  FunctionBody ::= "{" [Dec] [FunctionDef] [Stmt] "return" ExpressionStmt "}" ;
 
 SComp.    Stmt ::= CompoundStmt ;
 SExpr.    Stmt ::= ExpressionStmt;

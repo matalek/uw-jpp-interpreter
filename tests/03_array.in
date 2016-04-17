@@ -1,4 +1,4 @@
-int main() {
+function int main() {
 	int[] arr;
 	int i;
 	

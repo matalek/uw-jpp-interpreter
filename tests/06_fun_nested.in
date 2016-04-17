@@ -1,0 +1,22 @@
+int x;
+
+function void a() {
+	int x;
+	function void b() {
+		x = 2;
+		return;
+	}
+	x = 1;
+	print x;
+	b();
+	print x;
+	return; 
+} 
+
+function int main() {
+	x = 0;
+	print x;
+	a();
+	print x;
+	return 0;
+}

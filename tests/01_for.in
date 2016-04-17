@@ -1,4 +1,4 @@
-int main() {
+function int main() {
 	int i;
 	for (i = 0; i < 11; i+= 1) {
 		if (i < 5)

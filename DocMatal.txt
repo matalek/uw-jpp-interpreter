@@ -27,9 +27,9 @@ The set of reserved words is the set of terminals appearing in the grammar. Thos
 
 The reserved words used in Matal are the following:
   | ``bool`` | ``else`` | ``false`` | ``for``
-  | ``if`` | ``init`` | ``int`` | ``print``
-  | ``return`` | ``struct`` | ``true`` | ``void``
-  | ``while`` |  |  | 
+  | ``function`` | ``if`` | ``init`` | ``int``
+  | ``print`` | ``return`` | ``struct`` | ``true``
+  | ``void`` | ``while`` |  | 
 
 The symbols used in Matal are the following:
   | ; | [] | << | >>
@@ -69,11 +69,13 @@ All other symbols are terminals.
   | //StructSpec// | -> | ``struct`` //Ident// ``{`` //[Dec]// ``}`` 
   | //[Ident]// | -> | //Ident// 
   |  |  **|**  | //Ident// ``,`` //[Ident]// 
-  | //FunctionDef// | -> | //Declarator// ``(`` //[Declarator]// ``)`` //FunctionBody// 
+  | //FunctionDef// | -> | ``function`` //Declarator// ``(`` //[Declarator]// ``)`` //FunctionBody// 
   | //[Declarator]// | -> | **eps**
   |  |  **|**  | //Declarator// 
   |  |  **|**  | //Declarator// ``,`` //[Declarator]// 
-  | //FunctionBody// | -> | ``{`` //[Dec]// //[Stmt]// ``return`` //ExpressionStmt// ``}`` 
+  | //[FunctionDef]// | -> | **eps**
+  |  |  **|**  | //FunctionDef// //[FunctionDef]// 
+  | //FunctionBody// | -> | ``{`` //[Dec]// //[FunctionDef]// //[Stmt]// ``return`` //ExpressionStmt// ``}`` 
   | //Stmt// | -> | //CompoundStmt// 
   |  |  **|**  | //ExpressionStmt// 
   |  |  **|**  | //SelectionStmt// 

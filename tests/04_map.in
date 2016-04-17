@@ -1,4 +1,4 @@
-int main() {
+function int main() {
 	int i;
 	bool<<int>> map;
 	for (i = 0; i < 10; i += 1)

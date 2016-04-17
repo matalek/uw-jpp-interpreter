@@ -46,17 +46,18 @@ import ErrM
  'else' { PT _ (TS _ 29) }
  'false' { PT _ (TS _ 30) }
  'for' { PT _ (TS _ 31) }
- 'if' { PT _ (TS _ 32) }
- 'init' { PT _ (TS _ 33) }
- 'int' { PT _ (TS _ 34) }
- 'print' { PT _ (TS _ 35) }
- 'return' { PT _ (TS _ 36) }
- 'struct' { PT _ (TS _ 37) }
- 'true' { PT _ (TS _ 38) }
- 'void' { PT _ (TS _ 39) }
- 'while' { PT _ (TS _ 40) }
- '{' { PT _ (TS _ 41) }
- '}' { PT _ (TS _ 42) }
+ 'function' { PT _ (TS _ 32) }
+ 'if' { PT _ (TS _ 33) }
+ 'init' { PT _ (TS _ 34) }
+ 'int' { PT _ (TS _ 35) }
+ 'print' { PT _ (TS _ 36) }
+ 'return' { PT _ (TS _ 37) }
+ 'struct' { PT _ (TS _ 38) }
+ 'true' { PT _ (TS _ 39) }
+ 'void' { PT _ (TS _ 40) }
+ 'while' { PT _ (TS _ 41) }
+ '{' { PT _ (TS _ 42) }
+ '}' { PT _ (TS _ 43) }
 
 L_ident  { PT _ (TV $$) }
 L_integ  { PT _ (TI $$) }
@@ -115,7 +116,7 @@ ListIdent : Ident { (:[]) $1 }
 
 
 FunctionDef :: { FunctionDef }
-FunctionDef : Declarator '(' ListDeclarator ')' FunctionBody { FuncParams $1 $3 $5 } 
+FunctionDef : 'function' Declarator '(' ListDeclarator ')' FunctionBody { FuncParams $2 $4 $6 } 
 
 
 ListDeclarator :: { [Declarator] }
@@ -124,8 +125,13 @@ ListDeclarator : {- empty -} { [] }
   | Declarator ',' ListDeclarator { (:) $1 $3 }
 
 
+ListFunctionDef :: { [FunctionDef] }
+ListFunctionDef : {- empty -} { [] } 
+  | ListFunctionDef FunctionDef { flip (:) $1 $2 }
+
+
 FunctionBody :: { FunctionBody }
-FunctionBody : '{' ListDec ListStmt 'return' ExpressionStmt '}' { FuncBodyOne (reverse $2) (reverse $3) $5 } 
+FunctionBody : '{' ListDec ListFunctionDef ListStmt 'return' ExpressionStmt '}' { FuncBodyOne (reverse $2) (reverse $3) (reverse $4) $6 } 
 
 
 Stmt :: { Stmt }

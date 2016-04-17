@@ -40,7 +40,7 @@ data FunctionDef =
   deriving (Eq,Ord,Show)
 
 data FunctionBody =
-   FuncBodyOne [Dec] [Stmt] ExpressionStmt
+   FuncBodyOne [Dec] [FunctionDef] [Stmt] ExpressionStmt
   deriving (Eq,Ord,Show)
 
 data Stmt =
