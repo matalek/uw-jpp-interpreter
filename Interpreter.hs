@@ -10,7 +10,7 @@ import ErrM
 type Var = Ident
 type FName = Ident
 type Loc = Int
-data Val = Int Int | Bool Bool | Array Int (Map Int Val) | Mapp (Map Val Val)  deriving (Show, Eq, Ord)
+data Val = Int Int | Bool Bool | Array Int (Map Int Val) | Mapp (Map Val Val) | Structt (Map Ident Val) deriving (Show, Eq, Ord)
 newtype Fun = Fun ([Val] -> Interpreter Val)
 
 type Store = Map Loc Val
@@ -196,6 +196,10 @@ transExp (EMap (EVar var) exp) = do
   (Mapp map) <- getVarVal var
   return $ map ! key
 
+transExp (ESelect (EVar var) field) = do
+  (Structt struct) <- getVarVal var
+  return $ struct ! field
+
 evalBinOpInt :: Exp -> Exp -> (Int -> Int -> Int) -> Interpreter Val
 evalBinOpInt e1 e2 op = do
   (Int val1) <- transExp e1
@@ -223,6 +227,12 @@ assign (EMap (EVar var) exp) val = do
   let newMap = insert key val map
   setVarVal var $ Mapp newMap
 
+assign (ESelect (EVar var) field) val = do
+  (Structt struct) <- getVarVal var
+  let newStruct = insert field val struct
+  setVarVal var $ Structt newStruct
+
+
 -- Declaration evaluations
 transDec :: [Dec] -> Interpreter Env
 
@@ -238,12 +248,13 @@ initialValue TInt = Int 0
 initialValue TBool = Bool False
 initialValue (TArray _) = Array 0 Data.Map.empty
 initialValue (TMap _ _) = Mapp Data.Map.empty
+initialValue (TStruct _) = Structt Data.Map.empty
 
 transExternalDeclaration :: ExternalDeclaration -> Interpreter Env
 transExternalDeclaration x = case x of
   Afunc functiondef  -> transFuncDef functiondef
   Global dec  -> transDec [dec]
-  -- StructDec structspec  -> failure x
+  StructDec structspec  -> transStructDec structspec
 
 transFuncDef (FuncParams (DVariable _ funName) params (FuncBodyOne ds stmts es)) = do
   env <- ask
@@ -271,6 +282,9 @@ transArguments ((DVariable _ var):ds) (v:vs) = do
   modify (\store -> insert loc v store)
   newEnv <- local (setLoc var loc) $ transArguments ds vs
   return newEnv
+
+transStructDec :: StructSpec -> Interpreter Env
+transStructDec _ = ask
 
 transExternalDeclarations :: [ExternalDeclaration] -> Interpreter Env
 transExternalDeclarations [] = ask
