@@ -194,12 +194,15 @@ evalBinOpBool e1 e2 op = do
 transDec :: [Dec] -> Interpreter Env
 
 transDec [] = ask
-transDec ((Declaration (DVariable TInt v)):ds) = do
+transDec ((Declaration (DVariable t v)):ds) = do
   loc <- alloc
-  modify (\store -> insert loc (Int 0) store)
+  modify (\store -> insert loc (initialValue t) store)
   newEnv <- local (setLoc v loc) $ transDec ds
   return newEnv
 
+initialValue :: TypeSpecifier -> Val
+initialValue TInt = Int 0
+initialValue TBool = Bool False
 
 transExternalDeclaration :: ExternalDeclaration -> Interpreter Env
 transExternalDeclaration x = case x of
