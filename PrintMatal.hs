@@ -135,7 +135,6 @@ instance Print StructSpec where
 
 instance Print FunctionDef where
   prt i e = case e of
-   FuncNoParams declarator functionbody -> prPrec i 0 (concatD [prt 0 declarator , doc (showString "(") , doc (showString ")") , prt 0 functionbody])
    FuncParams declarator declarators functionbody -> prPrec i 0 (concatD [prt 0 declarator , doc (showString "(") , prt 0 declarators , doc (showString ")") , prt 0 functionbody])
 
 

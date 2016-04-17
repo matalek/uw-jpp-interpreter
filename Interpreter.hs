@@ -210,29 +210,16 @@ transExternalDeclaration x = case x of
   Global dec  -> transDec [dec]
   -- StructDec structspec  -> failure x
 
-transFuncDef :: FunctionDef -> Interpreter Env
-transFuncDef (FuncNoParams (DVariable _ funName) (FuncBodyOne ds stmts es)) = do
-  env <- transDec ds
-  let fun _ = do
-        local (\_ -> newEnv) $ transStmts stmts
-        case es of
-          SExprOne -> return $ Int 0 -- procedure, returning whatever
-          SExprTwo e -> local (\_ -> newEnv) $ transExp e
-        where
-          newEnv = setFun funName (Fun fun) env
-  return $ setFun funName (Fun fun) env
-
 transFuncDef (FuncParams (DVariable _ funName) params (FuncBodyOne ds stmts es)) = do
-  env <- transParams params
-  env' <- local (\_ -> env) $ transDec ds
+  env <- ask
   let fun arguments = do
-        transArguments params arguments
-        let newEnv = setFun funName (Fun fun) env'
+        env' <- local (\_ -> env) $ transArguments params arguments
+        env'' <- local (\_ -> env') $ transDec ds
+        let newEnv = setFun funName (Fun fun) env''
         local (\_ -> newEnv) $ transStmts stmts
         case es of
           SExprOne -> return $ Int 0 -- procedure, returning whatever
           SExprTwo e -> local (\_ -> newEnv) $ transExp e
-          
   return $ setFun funName (Fun fun) env
 
 transParams :: [Declarator] -> Interpreter Env
@@ -242,12 +229,13 @@ transParams ((DVariable _ var):ds) = do
   newEnv <- local (setLoc var loc) $ transParams ds
   return newEnv
 
-transArguments :: [Declarator] -> [Val] -> Interpreter ()
-transArguments [] [] = return ()
+transArguments :: [Declarator] -> [Val] -> Interpreter Env
+transArguments [] [] = ask
 transArguments ((DVariable _ var):ds) (v:vs) = do
- setVal var v
- transArguments ds vs
- 
+  loc <- alloc
+  modify (\store -> insert loc v store)
+  newEnv <- local (setLoc var loc) $ transArguments ds vs
+  return newEnv
 
 transExternalDeclarations :: [ExternalDeclaration] -> Interpreter Env
 transExternalDeclarations [] = ask

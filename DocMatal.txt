@@ -69,8 +69,7 @@ All other symbols are terminals.
   | //StructSpec// | -> | ``struct`` //Ident// ``{`` //[Dec]// ``}`` 
   | //[Ident]// | -> | //Ident// 
   |  |  **|**  | //Ident// ``,`` //[Ident]// 
-  | //FunctionDef// | -> | //Declarator// ``(`` ``)`` //FunctionBody// 
-  |  |  **|**  | //Declarator// ``(`` //[Declarator]// ``)`` //FunctionBody// 
+  | //FunctionDef// | -> | //Declarator// ``(`` //[Declarator]// ``)`` //FunctionBody// 
   | //[Declarator]// | -> | **eps**
   |  |  **|**  | //Declarator// 
   |  |  **|**  | //Declarator// ``,`` //[Declarator]// 

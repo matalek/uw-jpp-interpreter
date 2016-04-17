@@ -115,8 +115,7 @@ ListIdent : Ident { (:[]) $1 }
 
 
 FunctionDef :: { FunctionDef }
-FunctionDef : Declarator '(' ')' FunctionBody { FuncNoParams $1 $4 } 
-  | Declarator '(' ListDeclarator ')' FunctionBody { FuncParams $1 $3 $5 }
+FunctionDef : Declarator '(' ListDeclarator ')' FunctionBody { FuncParams $1 $3 $5 } 
 
 
 ListDeclarator :: { [Declarator] }

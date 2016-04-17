@@ -31,7 +31,6 @@ Struct.      StructSpec ::= "struct" Ident "{" [Dec] "}" ;
 (:[]).   [Ident] ::= Ident ;
 (:).     [Ident] ::= Ident "," [Ident] ;
 
-FuncNoParams.   FunctionDef ::= Declarator "(" ")" FunctionBody;
 FuncParams.   FunctionDef ::= Declarator "(" [Declarator] ")" FunctionBody;
 
 separator Declarator ",";
