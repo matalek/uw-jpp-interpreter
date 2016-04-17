@@ -1,0 +1,14 @@
+int main() {
+	int[] arr;
+	int i;
+	
+	init arr[10];
+	for (i = 0; i < 10; i += 1)
+		arr[i] = i;
+
+	
+	for (i = 0; i < 10; i += 1)
+		print arr[i];
+	
+	return 0;
+}

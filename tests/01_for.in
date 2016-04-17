@@ -1,0 +1,10 @@
+int main() {
+	int i;
+	for (i = 0; i < 11; i+= 1) {
+		if (i < 5)
+			print i;
+		else
+			print 10 - i;
+	}
+	return 0;
+}

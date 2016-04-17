@@ -1,0 +1,15 @@
+int a;
+
+int p(int n) {
+	bool a;
+	a = false;
+	return a;
+}
+
+int main(){
+	a = 1;
+	print a;
+	print p(0);
+	print a;
+	return;
+}
