@@ -10,7 +10,7 @@ import ErrM
 type Var = Ident
 type FName = Ident
 type Loc = Int
-data Val = Int Int | Bool Bool | Array Int (Map Int Val) deriving (Show)
+data Val = Int Int | Bool Bool | Array Int (Map Int Val) | Mapp (Map Val Val)  deriving (Show, Eq, Ord)
 newtype Fun = Fun ([Val] -> Interpreter Val)
 
 type Store = Map Loc Val
@@ -57,6 +57,8 @@ showVal (Int i) = show i
 showVal (Bool b)
   | b = "true"
   | otherwise = "false"
+showVal (Array _ _) = "array"
+showVal (Mapp _) = "map"
 
 alloc :: Interpreter Loc
 alloc = do
@@ -189,6 +191,11 @@ transExp (EArray (EVar var) exp) = do
   if i >= 0 && i < n then return $ array ! i
     else error "Index out of bounds"
 
+transExp (EMap (EVar var) exp) = do
+  key <- transExp $ exp
+  (Mapp map) <- getVarVal var
+  return $ map ! key
+
 evalBinOpInt :: Exp -> Exp -> (Int -> Int -> Int) -> Interpreter Val
 evalBinOpInt e1 e2 op = do
   (Int val1) <- transExp e1
@@ -210,6 +217,12 @@ assign (EArray (EVar var) exp) val = do
                else error "Index out of bounds"
   setVarVal var (Array n newArr)
 
+assign (EMap (EVar var) exp) val = do
+  key <- transExp $ exp
+  (Mapp map) <- getVarVal var
+  let newMap = insert key val map
+  setVarVal var $ Mapp newMap
+
 -- Declaration evaluations
 transDec :: [Dec] -> Interpreter Env
 
@@ -224,6 +237,7 @@ initialValue :: TypeSpecifier -> Val
 initialValue TInt = Int 0
 initialValue TBool = Bool False
 initialValue (TArray _) = Array 0 Data.Map.empty
+initialValue (TMap _ _) = Mapp Data.Map.empty
 
 transExternalDeclaration :: ExternalDeclaration -> Interpreter Env
 transExternalDeclaration x = case x of
