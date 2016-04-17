@@ -10,7 +10,7 @@ import ErrM
 type Var = Ident
 type FName = Ident
 type Loc = Int
-data Val = Int Int | Bool Bool deriving (Show)
+data Val = Int Int | Bool Bool | Array Int (Map Int Val) deriving (Show)
 newtype Fun = Fun ([Val] -> Interpreter Val)
 
 type Store = Map Loc Val
@@ -47,8 +47,8 @@ getVarVal v = do
   loc <- getVarLoc v
   return $ store ! loc
 
-setVal :: Var -> Val -> Interpreter ()
-setVal var val = do
+setVarVal :: Var -> Val -> Interpreter ()
+setVarVal var val = do
   loc <- getVarLoc var
   modify $ insert loc val
 
@@ -88,7 +88,7 @@ transStmt x = case x of
   SSel selectionStmt  -> transSelectionStmt selectionStmt
   SIter iterStmt  -> transIterStmt iterStmt
   SPrint printStmt  -> transPrintStmt printStmt
-  SInit initStmt  -> failure x
+  SInit initStmt  -> transInitStmt initStmt
 
 
 -- Expression statements
@@ -139,6 +139,11 @@ transCompoundStmt (SCompOne ds ss) = do
   newEnv <- transDec ds
   local (\_ -> newEnv) $ transStmts ss
 
+transInitStmt :: InitStmt -> Interpreter ()
+transInitStmt (SInitOne v e) = do
+  (Int n) <- transExp e
+  setVarVal v (Array n Data.Map.empty)
+
 -- Expression evaluation
 transExp :: Exp -> Interpreter Val
 
@@ -149,7 +154,7 @@ transExp (EConst c) = case c of
 
 transExp (EVar v) = do getVarVal v
 
-transExp (EAssign e1@(EVar v) op e2) = do
+transExp (EAssign e1 op e2) = do
   newVal <-
     case op of
       Assign -> transExp e2
@@ -157,7 +162,7 @@ transExp (EAssign e1@(EVar v) op e2) = do
       AssignSub -> transExp (EMinus e1 e2)
       AssignMul -> transExp (ETimes e1 e2)
       AssignDiv -> transExp (EDiv e1 e2)
-  setVal v newVal
+  assign e1 newVal
   return newVal
 
 transExp (EPlus e1 e2) = evalBinOpInt e1 e2 (+)
@@ -178,6 +183,12 @@ transExp (EFunkPar (EVar f) exps) = do
   (Fun fun) <- getFun f
   fun arguments
 
+transExp (EArray (EVar var) exp) = do
+  (Int i) <- transExp $ exp
+  (Array n array) <- getVarVal var
+  if i >= 0 && i < n then return $ array ! i
+    else error "Index out of bounds"
+
 evalBinOpInt :: Exp -> Exp -> (Int -> Int -> Int) -> Interpreter Val
 evalBinOpInt e1 e2 op = do
   (Int val1) <- transExp e1
@@ -189,6 +200,15 @@ evalBinOpBool e1 e2 op = do
   (Int val1) <- transExp e1
   (Int val2) <- transExp e2
   return $ Bool $ op val1 val2
+
+assign :: Exp -> Val -> Interpreter ()
+assign (EVar var) val = setVarVal var val
+assign (EArray (EVar var) exp) val = do
+  (Int i) <- transExp $ exp
+  (Array n arr) <- getVarVal var
+  let newArr = if i >= 0 && i < n then insert i val arr
+               else error "Index out of bounds"
+  setVarVal var (Array n newArr)
 
 -- Declaration evaluations
 transDec :: [Dec] -> Interpreter Env
@@ -203,6 +223,7 @@ transDec ((Declaration (DVariable t v)):ds) = do
 initialValue :: TypeSpecifier -> Val
 initialValue TInt = Int 0
 initialValue TBool = Bool False
+initialValue (TArray _) = Array 0 Data.Map.empty
 
 transExternalDeclaration :: ExternalDeclaration -> Interpreter Env
 transExternalDeclaration x = case x of
