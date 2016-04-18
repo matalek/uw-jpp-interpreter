@@ -3,7 +3,7 @@ module Interpreter where
 import AbsMatal
 import Control.Monad.State
 import Control.Monad.Reader
-import Control.Monad.Identity
+import Control.Monad.Error
 import Data.Map
 import ErrM
 
@@ -16,7 +16,9 @@ newtype Fun = Fun ([Val] -> Interpreter Val)
 type Store = Map Loc Val
 type Env = (Map Var Loc, Map FName Fun)
 
-type Interpreter a = StateT Store (ReaderT Env IO) a
+type Result = ErrorT String IO
+
+type Interpreter a = StateT Store (ReaderT Env Result) a
 
 failure :: Show a => a -> Interpreter ()
 failure x = error $ "Undefined case: " ++ show x
@@ -71,7 +73,7 @@ skip :: Stmt
 skip = SComp (SCompOne [] [])
 
 -- Right now only for statements
-interpret :: Program -> IO ()
+interpret :: Program -> (Result ())
 interpret p = do
   runReaderT (execStateT (transProgram p) empty) (empty, empty)
   return ()
@@ -133,7 +135,7 @@ transIterStmt (SIterThree es1 es2 e s) = do
 transPrintStmt :: PrintStmt -> Interpreter ()
 transPrintStmt (SPrintOne  e) = do
   val <- transExp e
-  lift $ lift $ putStrLn $ showVal val
+  lift $ lift $ lift $ putStrLn $ showVal val
 
 -- Compound statements
 transCompoundStmt :: CompoundStmt -> Interpreter ()
@@ -170,7 +172,12 @@ transExp (EAssign e1 op e2) = do
 transExp (EPlus e1 e2) = evalBinOpInt e1 e2 (+)
 transExp (EMinus e1 e2) = evalBinOpInt e1 e2 (-)
 transExp (ETimes e1 e2) = evalBinOpInt e1 e2 (*)
-transExp (EDiv e1 e2) = evalBinOpInt e1 e2 div
+transExp (EDiv e1 e2) = do
+  (Int val1) <- transExp e1
+  (Int val2) <- transExp e2
+  if val2 == 0 then throwError "Division by zero"
+    else return $ Int $ val1 `div` val2
+  
 
 transExp (ELthen e1 e2) = evalBinOpBool e1 e2 (<)
 transExp (EGrthen e1 e2) = evalBinOpBool e1 e2 (>)
@@ -189,7 +196,7 @@ transExp (EArray (EVar var) exp) = do
   (Int i) <- transExp $ exp
   (Array n array) <- getVarVal var
   if i >= 0 && i < n then return $ array ! i
-    else error "Index out of bounds"
+    else throwError "Index out of bounds"
 
 transExp (EMap (EVar var) exp) = do
   key <- transExp $ exp
@@ -217,9 +224,9 @@ assign (EVar var) val = setVarVal var val
 assign (EArray (EVar var) exp) val = do
   (Int i) <- transExp $ exp
   (Array n arr) <- getVarVal var
-  let newArr = if i >= 0 && i < n then insert i val arr
-               else error "Index out of bounds"
-  setVarVal var (Array n newArr)
+  if i >= 0 && i < n then setVarVal var (Array n $ insert i val arr)
+    else throwError "Index out of bounds"
+  
 
 assign (EMap (EVar var) exp) val = do
   key <- transExp $ exp
