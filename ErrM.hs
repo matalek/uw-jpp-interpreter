@@ -6,11 +6,20 @@ module ErrM where
 
 -- the Error monad: like Maybe type with error msgs
 
+import Control.Monad
 import Control.Monad (MonadPlus(..), liftM)
+import Control.Applicative
+--import qualified Control.Applicative as CA
+
 
 data Err a = Ok a | Bad String
   deriving (Read, Show, Eq, Ord)
 
+instance Applicative Err where
+
+  
+instance Alternative Err where
+  
 instance Monad Err where
   return      = Ok
   fail        = Bad

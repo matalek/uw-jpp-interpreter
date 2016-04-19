@@ -1,3 +1,4 @@
+{-# LANGUAGE FlexibleContexts #-}
 module Interpreter where
 
 import AbsMatal
