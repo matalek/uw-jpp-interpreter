@@ -1,5 +1,3 @@
-
-{-# LANGUAGE FlexibleContexts #-}
 module Interpreter where
 
 import AbsMatal
@@ -266,6 +264,7 @@ transExternalDeclaration x = case x of
   Global dec  -> transDec [dec]
   StructDec structspec  -> transStructDec structspec
 
+transFuncDef :: FunctionDef -> Interpreter Env
 transFuncDef (FuncParams (DVariable _ funName) params (FuncBodyOne ds fs stmts es)) = do
   env <- ask
   let fun arguments = do
