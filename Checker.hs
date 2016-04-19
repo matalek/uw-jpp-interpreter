@@ -106,6 +106,9 @@ dataTypeOf (EMinus e1 e2) = checkBinOpInt e1 e2
 dataTypeOf (ETimes e1 e2) = checkBinOpInt e1 e2
 dataTypeOf (EDiv e1 e2) = checkBinOpInt e1 e2
 
+dataTypeOf (EPostInc e) = dataTypeOf $ EAssign e AssignAdd (EConst $ EInt 1)
+dataTypeOf (EPostDec e) = dataTypeOf $ EAssign e AssignSub (EConst $ EInt 1)
+
 dataTypeOf (ELthen e1 e2) = checkBinOpBool e1 e2
 dataTypeOf (EGrthen e1 e2) = checkBinOpBool e1 e2
 dataTypeOf (ELe e1 e2) = checkBinOpBool e1 e2

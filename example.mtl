@@ -3,7 +3,7 @@ struct person {
   bool male;
 }
 
-void printPeople(struct person[] people, int n) {
+function void printPeople(struct person[] people, int n) {
   int i;
   for (i = 0; i < n; i++) {
     print people[i].age;
@@ -13,26 +13,29 @@ void printPeople(struct person[] people, int n) {
       print 0;
   }
   return;
-} 
+}
 
-int main() {
+function int main() {
   int j;
   int i;
   int sum;
   struct person[] people;
   // Dictionary, indexed with int
   struct person<<int>> age;
+  struct person temp;
 
   init people[10];
   // Creating example data
   for (i = 0; i < 5; i++) {
-    people[i].age = i * 10;
-    people[i].male = true;
+    temp.age = i * 10;
+    temp.male = true;
+    people[i] = temp;
   }
 
   for (i = 5; i < 10; i++) {
-    people[i].age = i * 10;
-    people[i].male = false;
+    temp.age = i * 10;
+    temp.male = false;
+    people[i] = temp;
   }
 
   j = 0;

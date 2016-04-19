@@ -179,6 +179,9 @@ transExp (EDiv e1 e2) = do
   if val2 == 0 then lift $ lift $ throwE "Division by zero"
     else return $ Int $ val1 `div` val2
   
+transExp (EPostInc e) = transExp $ EAssign e AssignAdd (EConst $ EInt 1)
+transExp (EPostDec e) = transExp $ EAssign e AssignSub (EConst $ EInt 1)
+
 
 transExp (ELthen e1 e2) = evalBinOpBool e1 e2 (<)
 transExp (EGrthen e1 e2) = evalBinOpBool e1 e2 (>)
