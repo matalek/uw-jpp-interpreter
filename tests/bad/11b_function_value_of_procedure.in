@@ -1,0 +1,9 @@
+function void sum(int a, int b) {
+  return;
+}
+
+function int main() {
+	int s;
+  s = sum(1, 2);
+	return 0;
+}

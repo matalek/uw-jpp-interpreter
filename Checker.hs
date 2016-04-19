@@ -240,7 +240,8 @@ checkInitStmt (SInitOne v e) = do
 checkPrintStmt :: PrintStmt -> Checker ()
 checkPrintStmt (SPrintOne e) = do
   val <- dataTypeOf e
-  return ()
+  if val == Void then lift $ throwE "Void type cannot be printed"
+    else return ()
 
 checkDec :: [Dec] -> Checker Env
 checkDec [] = ask
