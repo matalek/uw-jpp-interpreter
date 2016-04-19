@@ -1,0 +1,8 @@
+function int sum(int a, int b) {
+  return a + b;
+}
+
+function int main() {
+	sum(1, true);
+	return 0;
+}

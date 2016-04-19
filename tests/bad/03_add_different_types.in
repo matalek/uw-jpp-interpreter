@@ -1,0 +1,13 @@
+function int main() {
+	int a;
+  bool b;
+
+  a = 1;
+  b = true;
+
+  print a;
+
+  a+b;
+
+	return 0;
+}

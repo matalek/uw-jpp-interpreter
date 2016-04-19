@@ -52,6 +52,7 @@ setFuncType v t = do
 toDataType :: TypeSpecifier -> DataType
 toDataType TInt = Int
 toDataType TBool = Bool
+toDataType TVoid = Void
 toDataType (TArray t) = Array $ toDataType t
 toDataType (TMap t1 t2) = Map (toDataType t2) (toDataType t1) -- keys and values in different order
 
@@ -99,7 +100,8 @@ dataTypeOf (EFunkPar f exps) = do
   argumentsType <- mapM dataTypeOf exps
   fun <- funcTypeOf f 
   if snd fun == argumentsType then return $ fst fun
-    else lift $ throwE "Function arguments do not have correct type"
+    else if length (snd fun) == length argumentsType then lift $ throwE "Function arguments do not have correct type"
+         else lift $ throwE "Number of function arguments is wrong"
 
 dataTypeOf (EArray v exp) = do
   type1 <- dataTypeOf v
@@ -210,15 +212,27 @@ checkDec ((Declaration (DVariable t v)):ds) = do
   env <- setDataType v $ toDataType t
   local (\_ -> env) $ checkDec ds
 
+
+checkFuncDefs :: [FunctionDef] -> Checker Env
+checkFuncDefs [] = ask
+checkFuncDefs (f:fs) = do
+  newEnv1 <- checkFuncDef f
+  local (\_ -> newEnv1) $ checkFuncDefs fs
+
 checkFuncDef :: FunctionDef -> Checker Env
-checkFuncDef (FuncParams (DVariable returnType funName) params (FuncBodyOne ds _ stmts _)) = do
-  env <- checkDec ds
-  -- TO DO: add parsing for inner functions
-  -- TO DO: check return type
-  local (\_ -> env) $ mapM checkStmt stmts
+checkFuncDef (FuncParams (DVariable returnType funName) params (FuncBodyOne ds fs stmts es)) = do
+  let paramsDec = Prelude.map (\ x -> (Declaration x)) params
+  env1 <- checkDec paramsDec -- params
+  env2 <- local (\_ -> env1) $ checkDec ds -- declarations
   let paramsType = Prelude.map (\(DVariable paramType _) -> toDataType paramType) params 
   let funcType = (toDataType returnType, paramsType)
-  setFuncType funName funcType
+  env3 <- local (\_ -> env2) $ setFuncType funName funcType -- recursion
+  env4 <- local (\_ -> env3) $ checkFuncDefs fs -- inner functions
+  local (\_ -> env4) $ mapM checkStmt stmts
+  let ret1 = toDataType returnType 
+  ret2 <- local (\_ -> env4) $ dataTypeOfStmt es
+  if ret1 /= ret2 then lift $ throwE "Return type is not correct"
+    else setFuncType funName funcType
 
 checkProgram :: Program -> Checker ()
 checkProgram (Progr ds) = do
