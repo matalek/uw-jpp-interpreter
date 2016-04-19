@@ -21,7 +21,7 @@ function int main() {
   int sum;
   struct person[] people;
   // Dictionary, indexed with int
-  struct person<<int>> age;
+  struct person<<int>> peopleByAge;
   struct person temp;
 
   init people[10];
@@ -38,21 +38,22 @@ function int main() {
     people[i] = temp;
   }
 
+
   j = 0;
   sum = 0;
   while (j < 10) {
-    sum += people[i].age;
-    person<<people[i].age>> = people[i]; // creates copy of the person
+    sum += people[j].age;
+    peopleByAge<<people[j].age>> = people[j]; // creates copy of the person
     j++;
   }
+
 
   // Printing out data
   printPeople(people, 10);
 
-  // print people<<5>>.age; // would result in an error
+  // print peopleByAge<<5>>.age; // would result in a runtime error
 
-  print people<<10>>.age; // prints 10
-
+  print peopleByAge<<10>>.age; // prints 10
 
   return 0;
 }

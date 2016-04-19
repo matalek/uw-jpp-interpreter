@@ -196,20 +196,23 @@ transExp (EFunkPar (EVar f) exps) = do
   (Fun fun) <- getFun f
   fun arguments
 
-transExp (EArray (EVar var) exp) = do
+transExp (EArray a exp) = do
   (Int i) <- transExp $ exp
-  (Array n array) <- getVarVal var
+  (Array n array) <- transExp a
   if i >= 0 && i < n then return $ array ! i
-    else lift $ lift $ throwE "Index out of bounds"
+    else lift $ lift $ throwE $ "Index out of bounds, index: " ++ (show i) ++ ", size: " ++ (show n) 
 
-transExp (EMap (EVar var) exp) = do
-  key <- transExp $ exp
-  (Mapp map) <- getVarVal var
+transExp (EMap m exp) = do
+  key <- transExp exp
+  (Mapp map) <- transExp m
   return $ map ! key
 
-transExp (ESelect (EVar var) field) = do
-  (Structt struct) <- getVarVal var
+transExp (ESelect s field) = do
+  (Structt struct) <- transExp s
   return $ struct ! field
+
+transExp x = do
+  lift $ lift $ throwE $  "No trans for: " ++ (show x)
 
 evalBinOpInt :: Exp -> Exp -> (Int -> Int -> Int) -> Interpreter Val
 evalBinOpInt e1 e2 op = do
