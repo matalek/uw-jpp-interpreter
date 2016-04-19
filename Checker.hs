@@ -10,14 +10,18 @@ import Data.Map
 
 type Var = Ident
 type FName = Ident
+type SName = Ident
 
-data DataType = Int | Bool | Void | Array DataType | Map DataType DataType deriving (Eq, Show)
+data DataType = Int | Bool | Void | Array DataType | Map DataType DataType
+              | Structt SName deriving (Eq, Show)
 type FuncType = (DataType, [DataType])
+type StructType = Map Var DataType
 
 type DataEnv = Map Var DataType
 type FuncEnv = Map FName FuncType
+type StructEnv = Map SName StructType
 
-type Env = (DataEnv, FuncEnv)
+type Env = (DataEnv, FuncEnv, StructEnv)
 
 type Result = ExceptT String IO
 
@@ -28,33 +32,36 @@ showVar (Ident s) = s
 
 getDataEnv :: Checker DataEnv
 getDataEnv = do
-  env <- ask
-  return $ fst env
+  (env, _, _) <- ask
+  return env
 
 getFuncEnv :: Checker FuncEnv
 getFuncEnv = do
-  env <- ask
-  return $ snd env
+  (_, env, _) <- ask
+  return env
 
+getStructEnv :: Checker StructEnv
+getStructEnv =  do
+  (_, _, env) <- ask
+  return env
 
 setDataType :: Var -> DataType -> Checker Env
 setDataType v t = do
-  dataEnv <- getDataEnv
-  funcEnv <- getFuncEnv
-  return (insert v t dataEnv, funcEnv)
+  (dataEnv, funcEnv, structEnv) <- ask
+  return (insert v t dataEnv, funcEnv, structEnv)
 
 setFuncType :: FName -> FuncType -> Checker Env
 setFuncType v t = do
-  dataEnv <- getDataEnv
-  funcEnv <- getFuncEnv
-  return (dataEnv, insert v t funcEnv)
+  (dataEnv, funcEnv, structEnv) <- ask
+  return (dataEnv, insert v t funcEnv, structEnv)
 
 toDataType :: TypeSpecifier -> DataType
 toDataType TInt = Int
 toDataType TBool = Bool
 toDataType TVoid = Void
 toDataType (TArray t) = Array $ toDataType t
-toDataType (TMap t1 t2) = Map (toDataType t2) (toDataType t1) -- keys and values in different order
+toDataType (TMap t1 t2) = Map (toDataType t2) (toDataType t1) -- keys and values in different order 
+toDataType (TStruct v) = Structt v
 
 funcTypeOf :: Exp -> Checker FuncType
 funcTypeOf (EVar f) = do
@@ -64,6 +71,16 @@ funcTypeOf (EVar f) = do
 
 -- ???????
 funcTypeOf _ = lift $ throwE "Some kind of error"
+
+structTypeOf :: Exp -> Checker StructType
+structTypeOf s = do
+  s' <- dataTypeOf s
+  env <- getStructEnv
+  case s'  of
+    (Structt struct) -> do
+      if member struct env then return $ env ! struct
+        else lift $ throwE $ "Struct " ++ showVar struct ++ " not defined"
+    _ -> lift $ throwE "Not a struct"
 
 dataTypeOf :: Exp -> Checker DataType
 
@@ -121,6 +138,11 @@ dataTypeOf (EMap v exp) = do
         else lift $ throwE "Map key has not an appropriate type"
     _ -> lift $ throwE "Trying to get element of not map"
 
+dataTypeOf (ESelect s field) = do
+  struct <- structTypeOf s
+  if member field struct then return $ struct ! field
+    else lift $ throwE "Struct has no such field"
+         
 dataTypeOf x = do
   lift $ throwE $ "Nothing for: " ++ (show x)
 
@@ -234,17 +256,24 @@ checkFuncDef (FuncParams (DVariable returnType funName) params (FuncBodyOne ds f
   if ret1 /= ret2 then lift $ throwE "Return type is not correct"
     else setFuncType funName funcType
 
+checkStructSpec :: StructSpec -> Checker Env
+checkStructSpec (Struct sname ds) = do
+  let set cur (Declaration (DVariable t v)) =
+        insert v (toDataType t) cur
+  let struct = Prelude.foldl set empty ds
+  (dataEnv, funcEnv, structEnv) <- ask
+  return (dataEnv, funcEnv, insert sname struct structEnv) 
+
 checkProgram :: Program -> Checker ()
 checkProgram (Progr ds) = do
   env <- checkExternalDeclarations ds
   return ()
-  
 
 checkExternalDeclaration :: ExternalDeclaration -> Checker Env
 checkExternalDeclaration x =  case x of
   Afunc functiondef -> checkFuncDef functiondef
   Global dec -> checkDec [dec]
-  _ -> ask 
+  StructDec structspec -> checkStructSpec structspec
   
 checkExternalDeclarations :: [ExternalDeclaration] -> Checker Env
 checkExternalDeclarations [] = ask
@@ -254,5 +283,5 @@ checkExternalDeclarations (d:ds) = do
 
 check :: Program -> Result ()
 check p = do
-  runReaderT (checkProgram p) (empty, empty)
+  runReaderT (checkProgram p) (empty, empty, empty)
   return ()
