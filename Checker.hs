@@ -21,10 +21,29 @@ type Env = (DataEnv, FuncEnv)
 
 type Checker a = ReaderT Env (ErrorT String IO) a
 
+showVar :: Var -> String
+showVar (Ident s) = s
+
 getDataEnv :: Checker DataEnv
 getDataEnv = do
   env <- ask
   return $ fst env
+
+getFuncEnv :: Checker FuncEnv
+getFuncEnv = do
+  env <- ask
+  return $ snd env
+
+
+setDataType :: Var -> DataType -> Checker Env
+setDataType v t = do
+  dataEnv <- getDataEnv
+  funcEnv <- getFuncEnv
+  return (insert v t dataEnv, funcEnv)
+
+toDataType :: TypeSpecifier -> DataType
+toDataType TInt = Int
+toDataType TBool = Bool
 
 dataTypeOf :: Exp -> Checker DataType
 
@@ -36,7 +55,7 @@ dataTypeOf (EConst c) = case c of
 dataTypeOf (EVar v) = do
   env <- getDataEnv
   if member v env then return $ env ! v
-    else throwError $ "Variable " ++ (show v) ++  "not in scope."
+    else throwError $ "Variable " ++ (showVar v) ++  " not in scope."
 
 
 checkStmt :: Stmt -> Checker ()
@@ -49,9 +68,17 @@ checkPrintStmt (SPrintOne e) = do
   val <- dataTypeOf e
   return ()
 
+
+checkDec :: [Dec] -> Checker Env
+checkDec [] = ask
+checkDec ((Declaration (DVariable t v)):ds) = do
+  env <- setDataType v $ toDataType t
+  local (\_ -> env) $ checkDec ds
+
 checkFuncDef :: FunctionDef -> Checker Env
-checkFuncDef (FuncParams _ _ (FuncBodyOne _ _ stmts _)) = do
-  mapM checkStmt stmts
+checkFuncDef (FuncParams _ _ (FuncBodyOne ds _ stmts _)) = do
+  env <- checkDec ds
+  local (\_ -> env) $ mapM checkStmt stmts
   ask
 
 checkProgram :: Program -> Checker ()
