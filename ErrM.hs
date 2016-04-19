@@ -16,7 +16,6 @@ data Err a = Ok a | Bad String
   deriving (Read, Show, Eq, Ord)
 
 instance Applicative Err where
-
   
 instance Alternative Err where
   

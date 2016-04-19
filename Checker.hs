@@ -10,7 +10,7 @@ import Data.Map
 type Var = Ident
 type FName = Ident
 
-data DataType = Int | Bool | Void | Array DataType | Map DataType DataType
+data DataType = Int | Bool | Void | Array DataType | Map DataType DataType deriving (Eq)
 type FuncType = (DataType, [DataType])
 
 type DataEnv = Map Var DataType
@@ -57,17 +57,132 @@ dataTypeOf (EVar v) = do
   if member v env then return $ env ! v
     else throwError $ "Variable " ++ (showVar v) ++  " not in scope."
 
+-- very easy right now, will have to add lvalues
+dataTypeOf (EAssign e1 _ e2) = do
+  type1 <- dataTypeOf e1
+  type2 <- dataTypeOf e2
+  if type1 == type2 then return type1
+    else throwError "Assign expressions with different types"
+
+dataTypeOf (EPlus e1 e2) = checkBinOpInt e1 e2
+dataTypeOf (EMinus e1 e2) = checkBinOpInt e1 e2
+dataTypeOf (ETimes e1 e2) = checkBinOpInt e1 e2
+dataTypeOf (EDiv e1 e2) = checkBinOpInt e1 e2
+
+dataTypeOf (ELthen e1 e2) = checkBinOpBool e1 e2
+dataTypeOf (EGrthen e1 e2) = checkBinOpBool e1 e2
+dataTypeOf (ELe e1 e2) = checkBinOpBool e1 e2
+dataTypeOf (EGe e1 e2) = checkBinOpBool e1 e2
+
+{-
+dataTypeOf (EFunk (EVar f)) = do
+  (Fun fun) <- getFun f
+  fun []
+dataTypeOf (EFunkPar (EVar f) exps) = do
+  arguments <- mapM dataTypeOf exps
+  (Fun fun) <- getFun f
+  fun arguments
+-}
+
+dataTypeOf (EArray v exp) = do
+  type1 <- dataTypeOf v
+  type2 <- dataTypeOf exp
+  case type1 of
+    (Array valueType) -> do
+      if type2 == Int then  return valueType
+        else throwError "Index is not integer"
+    _ -> throwError "Trying to get element of not array"
+
+dataTypeOf (EMap v exp) = do
+  type1 <- dataTypeOf v
+  type2 <- dataTypeOf exp
+  case type1 of
+    (Map keyType valueType) -> do
+      if type2 == keyType then return valueType
+        else throwError "Map key has not an appropriate type"
+    _ -> throwError "Trying to get element of not map"
+
+checkBinOpInt :: Exp -> Exp -> Checker DataType
+checkBinOpInt e1 e2 = do
+  type1 <- dataTypeOf e1
+  type2 <- dataTypeOf e2
+  if type1 == Int && type2 == Int then return Int
+    else throwError "Binary operator applied not to integers"
+
+checkBinOpBool :: Exp -> Exp -> Checker DataType
+checkBinOpBool e1 e2 = do
+  type1 <- dataTypeOf e1
+  type2 <- dataTypeOf e2
+  if type1 == Int && type2 == Int then return Bool
+    else throwError "Compare operator applied not to integers"
+
+
+skip :: Stmt
+skip = SComp (SCompOne [] [])
+
+checkStmts :: [Stmt] -> Checker ()
+checkStmts ss = do
+  mapM checkStmt ss
+  return ()
 
 checkStmt :: Stmt -> Checker ()
 checkStmt x = case x of
-  SPrint printStmt -> checkPrintStmt printStmt
-  _ -> return ()
+  SComp compoundStmt  -> checkCompoundStmt compoundStmt
+  SExpr expressionStmt  -> checkExpressionStmt expressionStmt
+  SSel selectionStmt  -> checkSelectionStmt selectionStmt
+  SIter iterStmt  -> checkIterStmt iterStmt
+  SPrint printStmt  -> checkPrintStmt printStmt
+  SInit initStmt  -> checkInitStmt initStmt
+
+checkExpressionStmt :: ExpressionStmt -> Checker ()
+checkExpressionStmt SExprOne = return ()
+checkExpressionStmt (SExprTwo e) = do
+  _ <- dataTypeOf e
+  return ()
+
+checkSelectionStmt :: SelectionStmt -> Checker ()
+checkSelectionStmt (SSelOne e s) =
+  checkSelectionStmt (SSelTwo e s skip) 
+checkSelectionStmt (SSelTwo e s1 s2) = do
+  cond <- dataTypeOf e
+  if cond == Bool then do
+    checkStmt s1
+    checkStmt s2
+  else throwError "The type of condition is not bool"
+
+checkIterStmt :: IterStmt -> Checker ()
+checkIterStmt (SIterOne e s) = checkSelectionStmt (SSelOne e s)         
+
+checkIterStmt (SIterTwo es1 es2 s) =
+  checkIterStmt (SIterThree es1 es2 (EConst ETrue) s)
+
+checkIterStmt (SIterThree es1 es2 e s) = do
+  _ <- dataTypeOfStmt es1
+  cond <- dataTypeOfStmt es2
+  _ <- dataTypeOf e
+  if cond == Bool then checkStmt s
+    else throwError "The type of condition is not bool"
+
+dataTypeOfStmt :: ExpressionStmt -> Checker DataType
+dataTypeOfStmt SExprOne = return Void -- don't know ???
+dataTypeOfStmt (SExprTwo e) = dataTypeOf e
+
+checkCompoundStmt :: CompoundStmt -> Checker ()
+checkCompoundStmt (SCompOne ds ss) = do
+  newEnv <- checkDec ds
+  local (\_ -> newEnv) $ checkStmts ss
+
+checkInitStmt :: InitStmt -> Checker ()
+checkInitStmt (SInitOne v e) = do
+  _ <- dataTypeOf (EVar v) -- check if v was declared
+  type2 <- dataTypeOf e
+  if type2 == Int then return ()
+    else throwError "Size of array is not an integer" 
 
 checkPrintStmt :: PrintStmt -> Checker ()
 checkPrintStmt (SPrintOne e) = do
   val <- dataTypeOf e
   return ()
-
 
 checkDec :: [Dec] -> Checker Env
 checkDec [] = ask
