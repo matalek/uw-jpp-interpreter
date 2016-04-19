@@ -3,7 +3,8 @@ module Checker(check) where
 import AbsMatal
 import ErrM
 import Control.Monad.Reader
-import Control.Monad.Error
+import Control.Monad.Except
+import Control.Monad.Trans.Except
 import Control.Monad.Identity
 import Data.Map
 
@@ -18,8 +19,9 @@ type FuncEnv = Map FName FuncType
 
 type Env = (DataEnv, FuncEnv)
 
+type Result = ExceptT String IO
 
-type Checker a = ReaderT Env (ErrorT String IO) a
+type Checker a = ReaderT Env Result a
 
 showVar :: Var -> String
 showVar (Ident s) = s
@@ -55,14 +57,14 @@ dataTypeOf (EConst c) = case c of
 dataTypeOf (EVar v) = do
   env <- getDataEnv
   if member v env then return $ env ! v
-    else throwError $ "Variable " ++ (showVar v) ++  " not in scope."
+    else lift $ throwE $ "Variable " ++ (showVar v) ++  " not in scope."
 
 -- very easy right now, will have to add lvalues
 dataTypeOf (EAssign e1 _ e2) = do
   type1 <- dataTypeOf e1
   type2 <- dataTypeOf e2
   if type1 == type2 then return type1
-    else throwError "Assign expressions with different types"
+    else lift $ throwE "Assign expressions with different types"
 
 dataTypeOf (EPlus e1 e2) = checkBinOpInt e1 e2
 dataTypeOf (EMinus e1 e2) = checkBinOpInt e1 e2
@@ -90,8 +92,8 @@ dataTypeOf (EArray v exp) = do
   case type1 of
     (Array valueType) -> do
       if type2 == Int then  return valueType
-        else throwError "Index is not integer"
-    _ -> throwError "Trying to get element of not array"
+        else lift $ throwE "Index is not integer"
+    _ -> lift $ throwE "Trying to get element of not array"
 
 dataTypeOf (EMap v exp) = do
   type1 <- dataTypeOf v
@@ -99,22 +101,22 @@ dataTypeOf (EMap v exp) = do
   case type1 of
     (Map keyType valueType) -> do
       if type2 == keyType then return valueType
-        else throwError "Map key has not an appropriate type"
-    _ -> throwError "Trying to get element of not map"
+        else lift $ throwE "Map key has not an appropriate type"
+    _ -> lift $ throwE "Trying to get element of not map"
 
 checkBinOpInt :: Exp -> Exp -> Checker DataType
 checkBinOpInt e1 e2 = do
   type1 <- dataTypeOf e1
   type2 <- dataTypeOf e2
   if type1 == Int && type2 == Int then return Int
-    else throwError "Binary operator applied not to integers"
+    else lift $ throwE "Binary operator applied not to integers"
 
 checkBinOpBool :: Exp -> Exp -> Checker DataType
 checkBinOpBool e1 e2 = do
   type1 <- dataTypeOf e1
   type2 <- dataTypeOf e2
   if type1 == Int && type2 == Int then return Bool
-    else throwError "Compare operator applied not to integers"
+    else lift $ throwE "Compare operator applied not to integers"
 
 
 skip :: Stmt
@@ -148,7 +150,7 @@ checkSelectionStmt (SSelTwo e s1 s2) = do
   if cond == Bool then do
     checkStmt s1
     checkStmt s2
-  else throwError "The type of condition is not bool"
+  else lift $ throwE "The type of condition is not bool"
 
 checkIterStmt :: IterStmt -> Checker ()
 checkIterStmt (SIterOne e s) = checkSelectionStmt (SSelOne e s)         
@@ -161,7 +163,7 @@ checkIterStmt (SIterThree es1 es2 e s) = do
   cond <- dataTypeOfStmt es2
   _ <- dataTypeOf e
   if cond == Bool then checkStmt s
-    else throwError "The type of condition is not bool"
+    else lift $ throwE "The type of condition is not bool"
 
 dataTypeOfStmt :: ExpressionStmt -> Checker DataType
 dataTypeOfStmt SExprOne = return Void -- don't know ???
@@ -177,7 +179,7 @@ checkInitStmt (SInitOne v e) = do
   _ <- dataTypeOf (EVar v) -- check if v was declared
   type2 <- dataTypeOf e
   if type2 == Int then return ()
-    else throwError "Size of array is not an integer" 
+    else lift $ throwE "Size of array is not an integer" 
 
 checkPrintStmt :: PrintStmt -> Checker ()
 checkPrintStmt (SPrintOne e) = do
@@ -213,7 +215,7 @@ checkExternalDeclarations (d:ds) = do
   newEnv1 <- checkExternalDeclaration d
   local (\_ -> newEnv1) $ checkExternalDeclarations ds
 
-check :: Program -> ErrorT String IO ()
+check :: Program -> Result ()
 check p = do
   runReaderT (checkProgram p) (empty, empty)
   return ()

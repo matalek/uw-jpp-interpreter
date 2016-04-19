@@ -11,139 +11,101 @@ failure x = Bad $ "Undefined case: " ++ show x
 
 transIdent :: Ident -> Result
 transIdent x = case x of
-  Ident str  -> failure x
-
-
+  Ident string -> failure x
 transProgram :: Program -> Result
 transProgram x = case x of
-  Progr externaldeclarations  -> failure x
-
-
+  Progr externaldeclarations -> failure x
 transExternalDeclaration :: ExternalDeclaration -> Result
 transExternalDeclaration x = case x of
-  Afunc functiondef  -> failure x
-  Global dec  -> failure x
-  StructDec structspec  -> failure x
-
-
+  Afunc functiondef -> failure x
+  Global dec -> failure x
+  StructDec structspec -> failure x
 transDeclarator :: Declarator -> Result
 transDeclarator x = case x of
-  DVariable typespecifier id  -> failure x
-
-
+  DVariable typespecifier ident -> failure x
 transDec :: Dec -> Result
 transDec x = case x of
-  Declaration declarator  -> failure x
-
-
+  Declaration declarator -> failure x
 transTypeSpecifier :: TypeSpecifier -> Result
 transTypeSpecifier x = case x of
-  TVoid  -> failure x
-  TInt  -> failure x
-  TBool  -> failure x
-  TStruct id  -> failure x
-  TArray typespecifier  -> failure x
-  TMap typespecifier0 typespecifier  -> failure x
-
-
+  TVoid -> failure x
+  TInt -> failure x
+  TBool -> failure x
+  TStruct ident -> failure x
+  TArray typespecifier -> failure x
+  TMap typespecifier1 typespecifier2 -> failure x
 transStructSpec :: StructSpec -> Result
 transStructSpec x = case x of
-  Struct id decs  -> failure x
-
-
+  Struct ident decs -> failure x
 transFunctionDef :: FunctionDef -> Result
 transFunctionDef x = case x of
-  FuncParams declarator declarators functionbody  -> failure x
-
-
+  FuncParams declarator declarators functionbody -> failure x
 transFunctionBody :: FunctionBody -> Result
 transFunctionBody x = case x of
-  FuncBodyOne decs functiondefs stmts expressionstmt  -> failure x
-
-
+  FuncBodyOne decs functiondefs stmts expressionstmt -> failure x
 transStmt :: Stmt -> Result
 transStmt x = case x of
-  SComp compoundstmt  -> failure x
-  SExpr expressionstmt  -> failure x
-  SSel selectionstmt  -> failure x
-  SIter iterstmt  -> failure x
-  SPrint printstmt  -> failure x
-  SInit initstmt  -> failure x
-
-
+  SComp compoundstmt -> failure x
+  SExpr expressionstmt -> failure x
+  SSel selectionstmt -> failure x
+  SIter iterstmt -> failure x
+  SPrint printstmt -> failure x
+  SInit initstmt -> failure x
 transCompoundStmt :: CompoundStmt -> Result
 transCompoundStmt x = case x of
-  SCompOne decs stmts  -> failure x
-
-
+  SCompOne decs stmts -> failure x
 transExpressionStmt :: ExpressionStmt -> Result
 transExpressionStmt x = case x of
-  SExprOne  -> failure x
-  SExprTwo exp  -> failure x
-
-
+  SExprOne -> failure x
+  SExprTwo exp -> failure x
 transSelectionStmt :: SelectionStmt -> Result
 transSelectionStmt x = case x of
-  SSelOne exp stmt  -> failure x
-  SSelTwo exp stmt0 stmt  -> failure x
-
-
+  SSelOne exp stmt -> failure x
+  SSelTwo exp stmt1 stmt2 -> failure x
 transIterStmt :: IterStmt -> Result
 transIterStmt x = case x of
-  SIterOne exp stmt  -> failure x
-  SIterTwo expressionstmt0 expressionstmt stmt  -> failure x
-  SIterThree expressionstmt0 expressionstmt exp stmt  -> failure x
-
-
+  SIterOne exp stmt -> failure x
+  SIterTwo expressionstmt1 expressionstmt2 stmt -> failure x
+  SIterThree expressionstmt1 expressionstmt2 exp stmt -> failure x
 transPrintStmt :: PrintStmt -> Result
 transPrintStmt x = case x of
-  SPrintOne exp  -> failure x
-
-
+  SPrintOne exp -> failure x
 transInitStmt :: InitStmt -> Result
 transInitStmt x = case x of
-  SInitOne id exp  -> failure x
-
-
+  SInitOne ident exp -> failure x
 transExp :: Exp -> Result
 transExp x = case x of
-  EComma exp0 exp  -> failure x
-  EAssign exp0 assignmentop exp  -> failure x
-  EEq exp0 exp  -> failure x
-  ENeq exp0 exp  -> failure x
-  ELthen exp0 exp  -> failure x
-  EGrthen exp0 exp  -> failure x
-  ELe exp0 exp  -> failure x
-  EGe exp0 exp  -> failure x
-  EPlus exp0 exp  -> failure x
-  EMinus exp0 exp  -> failure x
-  ETimes exp0 exp  -> failure x
-  EDiv exp0 exp  -> failure x
-  ESelect exp id  -> failure x
-  EArray exp0 exp  -> failure x
-  EFunk exp  -> failure x
-  EFunkPar exp exps  -> failure x
-  EMap exp0 exp  -> failure x
-  EPostInc exp  -> failure x
-  EPostDec exp  -> failure x
-  EVar id  -> failure x
-  EConst constant  -> failure x
-
-
+  EComma exp1 exp2 -> failure x
+  EAssign exp1 assignmentop exp2 -> failure x
+  EEq exp1 exp2 -> failure x
+  ENeq exp1 exp2 -> failure x
+  ELthen exp1 exp2 -> failure x
+  EGrthen exp1 exp2 -> failure x
+  ELe exp1 exp2 -> failure x
+  EGe exp1 exp2 -> failure x
+  EPlus exp1 exp2 -> failure x
+  EMinus exp1 exp2 -> failure x
+  ETimes exp1 exp2 -> failure x
+  EDiv exp1 exp2 -> failure x
+  ESelect exp ident -> failure x
+  EArray exp1 exp2 -> failure x
+  EFunk exp -> failure x
+  EFunkPar exp exps -> failure x
+  EMap exp1 exp2 -> failure x
+  EPostInc exp -> failure x
+  EPostDec exp -> failure x
+  EVar ident -> failure x
+  EConst constant -> failure x
 transConstant :: Constant -> Result
 transConstant x = case x of
-  EInt n  -> failure x
-  ETrue  -> failure x
-  EFalse  -> failure x
-
-
+  EInt integer -> failure x
+  ETrue -> failure x
+  EFalse -> failure x
 transAssignmentOp :: AssignmentOp -> Result
 transAssignmentOp x = case x of
-  Assign  -> failure x
-  AssignMul  -> failure x
-  AssignDiv  -> failure x
-  AssignAdd  -> failure x
-  AssignSub  -> failure x
-
-
+  Assign -> failure x
+  AssignMul -> failure x
+  AssignDiv -> failure x
+  AssignAdd -> failure x
+  AssignSub -> failure x
 

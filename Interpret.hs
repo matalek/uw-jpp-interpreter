@@ -8,21 +8,22 @@ import System.IO
 import Checker
        
 import ErrM
-import Control.Monad.Error
+import Control.Monad.Except
+import Control.Monad.Trans.Except
   
 main = do
   input <- getContents
   let Ok s = pProgram (myLexer input)
-  analysis <- runErrorT $ check s
+  analysis <- runExceptT $ check s
   case analysis of
     (Left e) -> hPutStrLn stderr $ "Type error: " ++ e
     _ -> do
-      res <- runErrorT $ interpret s
+      res <- runExceptT $ interpret s
       case res of
         (Left e) -> hPutStrLn stderr e
         _ -> return ()
 
-exec :: String -> ErrorT String IO ()
+exec :: String -> ExceptT String IO ()
 exec input = 
   let Ok s = pProgram (myLexer input) 
   in interpret s

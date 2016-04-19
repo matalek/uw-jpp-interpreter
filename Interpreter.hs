@@ -1,10 +1,12 @@
+
 {-# LANGUAGE FlexibleContexts #-}
 module Interpreter where
 
 import AbsMatal
 import Control.Monad.State
 import Control.Monad.Reader
-import Control.Monad.Error
+import Control.Monad.Except
+import Control.Monad.Trans.Except
 import Data.Map
 import ErrM
 
@@ -17,7 +19,7 @@ newtype Fun = Fun ([Val] -> Interpreter Val)
 type Store = Map Loc Val
 type Env = (Map Var Loc, Map FName Fun)
 
-type Result = ErrorT String IO
+type Result = ExceptT String IO
 
 type Interpreter a = StateT Store (ReaderT Env Result) a
 
@@ -176,7 +178,7 @@ transExp (ETimes e1 e2) = evalBinOpInt e1 e2 (*)
 transExp (EDiv e1 e2) = do
   (Int val1) <- transExp e1
   (Int val2) <- transExp e2
-  if val2 == 0 then throwError "Division by zero"
+  if val2 == 0 then lift $ lift $ throwE "Division by zero"
     else return $ Int $ val1 `div` val2
   
 
@@ -197,7 +199,7 @@ transExp (EArray (EVar var) exp) = do
   (Int i) <- transExp $ exp
   (Array n array) <- getVarVal var
   if i >= 0 && i < n then return $ array ! i
-    else throwError "Index out of bounds"
+    else lift $ lift $ throwE "Index out of bounds"
 
 transExp (EMap (EVar var) exp) = do
   key <- transExp $ exp
@@ -226,7 +228,7 @@ assign (EArray (EVar var) exp) val = do
   (Int i) <- transExp $ exp
   (Array n arr) <- getVarVal var
   if i >= 0 && i < n then setVarVal var (Array n $ insert i val arr)
-    else throwError "Index out of bounds"
+    else lift $ lift $ throwE "Index out of bounds"
   
 
 assign (EMap (EVar var) exp) val = do
