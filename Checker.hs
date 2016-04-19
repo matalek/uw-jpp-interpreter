@@ -96,11 +96,13 @@ dataTypeOf (EVar v) = do
 
 -- very easy right now, will have to add lvalues
 dataTypeOf (EAssign e1 _ e2) = do
+  let lValue = isLValue e1
   type1 <- dataTypeOf e1
   type2 <- dataTypeOf e2
-  if type1 == type2 then return type1
-    else lift $ throwE "Assign expressions with different types"
-
+  if not lValue then lift $ throwE "Not a l-value on the left side of an assignment"
+    else if type1 /= type2 then lift $ throwE "Assign expressions with different types"
+         else return type1
+              
 dataTypeOf (EPlus e1 e2) = checkBinOpInt e1 e2
 dataTypeOf (EMinus e1 e2) = checkBinOpInt e1 e2
 dataTypeOf (ETimes e1 e2) = checkBinOpInt e1 e2
@@ -163,6 +165,15 @@ checkBinOpBool e1 e2 = do
   if type1 == Int && type2 == Int then return Bool
     else lift $ throwE "Compare operator applied not to integers"
 
+-- Check, whether given expression can be on the left side of the assignment operator.
+-- We only accept single-level assignment (you cannot for example assign a field for an
+-- object in an array).
+isLValue :: Exp -> Bool 
+isLValue (EVar _) = True
+isLValue (EArray (EVar _) _) = True
+isLValue (EMap (EVar _) _) = True
+isLValue (ESelect (EVar _) _) = True
+isLValue _ = False
 
 skip :: Stmt
 skip = SComp (SCompOne [] [])
