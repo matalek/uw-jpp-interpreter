@@ -1,6 +1,7 @@
 module Checker(check) where
 
 import AbsMatal
+import PrintMatal
 import ErrM
 import Control.Monad.Reader
 import Control.Monad.Except
@@ -67,7 +68,7 @@ funcTypeOf :: Exp -> Checker FuncType
 funcTypeOf (EVar f) = do
   env <- getFuncEnv
   if member f env then return $ env ! f
-    else  lift $ throwE $ "Function " ++ (showVar f) ++  " not in scope."
+    else  lift $ throwE $ "Function " ++ showVar f ++  " not in scope."
 
 -- ???????
 funcTypeOf _ = lift $ throwE "Some kind of error"
@@ -92,15 +93,15 @@ dataTypeOf (EConst c) = case c of
 dataTypeOf (EVar v) = do
   env <- getDataEnv
   if member v env then return $ env ! v
-    else lift $ throwE $ "Variable " ++ (showVar v) ++  " not in scope."
+    else lift $ throwE $ "Variable " ++ showVar v ++  " not in scope."
 
 -- very easy right now, will have to add lvalues
-dataTypeOf (EAssign e1 _ e2) = do
+dataTypeOf exp@(EAssign e1 _ e2) = do
   let lValue = isLValue e1
   type1 <- dataTypeOf e1
   type2 <- dataTypeOf e2
-  if not lValue then lift $ throwE "Not a l-value on the left side of an assignment"
-    else if type1 /= type2 then lift $ throwE "Assign expressions with different types"
+  if not lValue then lift $ throwE $ "Not a l-value on the left side of an assignment: " ++ printTree exp
+    else if type1 /= type2 then lift $ throwE $ "Assign expressions with different types: "  ++ printTree exp
          else return type1
               
 dataTypeOf (EPlus e1 e2) = checkBinOpInt e1 e2
@@ -118,35 +119,35 @@ dataTypeOf (EGe e1 e2) = checkBinOpBool e1 e2
 
 dataTypeOf (EFunk f) = dataTypeOf (EFunkPar f [])
   
-dataTypeOf (EFunkPar f exps) = do
+dataTypeOf exp@(EFunkPar f exps) = do
   argumentsType <- mapM dataTypeOf exps
   fun <- funcTypeOf f 
   if snd fun == argumentsType then return $ fst fun
-    else if length (snd fun) == length argumentsType then lift $ throwE "Function arguments do not have correct type"
-         else lift $ throwE "Number of function arguments is wrong"
+    else if length (snd fun) == length argumentsType then lift $ throwE $ "Function arguments do not have correct type: " ++ printTree exp
+         else lift $ throwE $ "Number of function arguments is wrong: " ++ printTree exp
 
-dataTypeOf (EArray v exp) = do
+dataTypeOf input@(EArray v exp) = do
   type1 <- dataTypeOf v
   type2 <- dataTypeOf exp
   case type1 of
     (Array valueType) -> do
       if type2 == Int then  return valueType
         else lift $ throwE "Index is not integer"
-    _ -> lift $ throwE "Trying to get element of not array"
+    _ -> lift $ throwE $ "Trying to get element of not array: " ++ printTree input
 
-dataTypeOf (EMap v exp) = do
+dataTypeOf input@(EMap v exp) = do
   type1 <- dataTypeOf v
   type2 <- dataTypeOf exp
   case type1 of
     (Map keyType valueType) -> do
       if type2 == keyType then return valueType
-        else lift $ throwE "Map key has not an appropriate type"
-    _ -> lift $ throwE "Trying to get element of not map"
+        else lift $ throwE $ "Map key has not an appropriate type: " ++ printTree input
+    _ -> lift $ throwE $ "Trying to get element of not map: " ++ printTree input
 
-dataTypeOf (ESelect s field) = do
+dataTypeOf input@(ESelect s field) = do
   struct <- structTypeOf s
   if member field struct then return $ struct ! field
-    else lift $ throwE "Struct has no such field"
+    else lift $ throwE $ "Struct has no such field: " ++ printTree input
          
 dataTypeOf x = do
   lift $ throwE $ "Nothing for: " ++ (show x)
@@ -156,14 +157,14 @@ checkBinOpInt e1 e2 = do
   type1 <- dataTypeOf e1
   type2 <- dataTypeOf e2
   if type1 == Int && type2 == Int then return Int
-    else lift $ throwE "Binary operator applied not to integers"
+    else lift $ throwE $ "Binary operator applied not to integers: " ++ printTree e1 ++ " and " ++ printTree e2
 
 checkBinOpBool :: Exp -> Exp -> Checker DataType
-checkBinOpBool e1 e2 = do
+checkBinOpBool input1@e1 input2@e2 = do
   type1 <- dataTypeOf e1
   type2 <- dataTypeOf e2
   if type1 == Int && type2 == Int then return Bool
-    else lift $ throwE "Compare operator applied not to integers"
+    else lift $ throwE $ "Compare operator applied not to integers: " ++ printTree e1 ++ " and " ++ printTree e2
 
 -- Check, whether given expression can be on the left side of the assignment operator.
 -- We only accept single-level assignment (you cannot for example assign a field for an
@@ -201,12 +202,12 @@ checkExpressionStmt (SExprTwo e) = do
 checkSelectionStmt :: SelectionStmt -> Checker ()
 checkSelectionStmt (SSelOne e s) =
   checkSelectionStmt (SSelTwo e s skip) 
-checkSelectionStmt (SSelTwo e s1 s2) = do
+checkSelectionStmt input@(SSelTwo e s1 s2) = do
   cond <- dataTypeOf e
   if cond == Bool then do
     checkStmt s1
     checkStmt s2
-  else lift $ throwE "The type of condition is not bool"
+  else lift $ throwE $"The type of condition is not bool: " ++ printTree input
 
 checkIterStmt :: IterStmt -> Checker ()
 checkIterStmt (SIterOne e s) = checkSelectionStmt (SSelOne e s)         
@@ -214,12 +215,12 @@ checkIterStmt (SIterOne e s) = checkSelectionStmt (SSelOne e s)
 checkIterStmt (SIterTwo es1 es2 s) =
   checkIterStmt (SIterThree es1 es2 (EConst ETrue) s)
 
-checkIterStmt (SIterThree es1 es2 e s) = do
+checkIterStmt input@(SIterThree es1 es2 e s) = do
   _ <- dataTypeOfStmt es1
   cond <- dataTypeOfStmt es2
   _ <- dataTypeOf e
   if cond == Bool then checkStmt s
-    else lift $ throwE "The type of condition is not bool"
+    else lift $ throwE $ "The type of condition is not bool: " ++ printTree input
 
 dataTypeOfStmt :: ExpressionStmt -> Checker DataType
 dataTypeOfStmt SExprOne = return Void -- don't know ???
@@ -231,16 +232,16 @@ checkCompoundStmt (SCompOne ds ss) = do
   local (\_ -> newEnv) $ checkStmts ss
 
 checkInitStmt :: InitStmt -> Checker ()
-checkInitStmt (SInitOne v e) = do
+checkInitStmt input@(SInitOne v e) = do
   _ <- dataTypeOf (EVar v) -- check if v was declared
   type2 <- dataTypeOf e
   if type2 == Int then return ()
-    else lift $ throwE "Size of array is not an integer" 
+    else lift $ throwE $ "Size of array is not an integer: " ++ printTree input
 
 checkPrintStmt :: PrintStmt -> Checker ()
-checkPrintStmt (SPrintOne e) = do
+checkPrintStmt input@(SPrintOne e) = do
   val <- dataTypeOf e
-  if val == Void then lift $ throwE "Void type cannot be printed"
+  if val == Void then lift $ throwE $ "Void type cannot be printed: " ++ printTree input
     else return ()
 
 checkDec :: [Dec] -> Checker Env
@@ -268,7 +269,7 @@ checkFuncDef (FuncParams (DVariable returnType funName) params (FuncBodyOne ds f
   local (\_ -> env4) $ mapM checkStmt stmts
   let ret1 = toDataType returnType 
   ret2 <- local (\_ -> env4) $ dataTypeOfStmt es
-  if ret1 /= ret2 then lift $ throwE "Return type is not correct"
+  if ret1 /= ret2 then lift $ throwE $ "Return type is not correct for function: " ++ showVar funName
     else setFuncType funName funcType
 
 checkStructSpec :: StructSpec -> Checker Env

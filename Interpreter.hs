@@ -232,7 +232,7 @@ assign (EArray (EVar var) exp) val = do
   (Int i) <- transExp $ exp
   (Array n arr) <- getVarVal var
   if i >= 0 && i < n then setVarVal var (Array n $ insert i val arr)
-    else lift $ lift $ throwE "Index out of bounds"
+    else lift $ lift $ throwE $ "Index out of bounds, index: " ++ (show i) ++ ", size: " ++ (show n) 
   
 
 assign (EMap (EVar var) exp) val = do

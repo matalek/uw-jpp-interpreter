@@ -1,0 +1,11 @@
+function int main() {
+  int a;
+  int b;
+  a = 1;
+  b = 2;
+  if (a < 1)
+    return -1;
+
+  print a + b;
+  return 0;
+}
