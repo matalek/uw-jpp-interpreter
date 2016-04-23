@@ -1,8 +1,8 @@
 int a;
 
 function int p(int n) {
-	bool a;
-	a = false;
+	int a;
+	a = n;
 	return a;
 }
 
@@ -11,5 +11,5 @@ function int main(){
 	print a;
 	print p(0);
 	print a;
-	return;
+	return 0;
 }
