@@ -176,9 +176,6 @@ isLValue (EMap (EVar _) _) = True
 isLValue (ESelect (EVar _) _) = True
 isLValue _ = False
 
-skip :: Stmt
-skip = SComp (SCompOne [] [])
-
 checkStmts :: [Stmt] -> Checker ()
 checkStmts ss = do
   mapM checkStmt ss
@@ -201,16 +198,16 @@ checkExpressionStmt (SExprTwo e) = do
 
 checkSelectionStmt :: SelectionStmt -> Checker ()
 checkSelectionStmt (SSelOne e s) =
-  checkSelectionStmt (SSelTwo e s skip) 
+  checkSelectionStmt (SSelTwo e s (SCompOne [] [])) 
 checkSelectionStmt input@(SSelTwo e s1 s2) = do
   cond <- dataTypeOf e
   if cond == Bool then do
-    checkStmt s1
-    checkStmt s2
+    checkStmt (SComp s1)
+    checkStmt (SComp s2)
   else lift $ throwE $"The type of condition is not bool: " ++ printTree input
 
 checkIterStmt :: IterStmt -> Checker ()
-checkIterStmt (SIterOne e s) = checkSelectionStmt (SSelOne e s)         
+checkIterStmt (SIterOne e s) = checkIterStmt (SIterTwo (SExprTwo (EConst ETrue)) (SExprTwo e) s) 
 
 checkIterStmt (SIterTwo es1 es2 s) =
   checkIterStmt (SIterThree es1 es2 (EConst ETrue) s)

@@ -55,7 +55,8 @@ data CompoundStmt = SCompOne [Dec] [Stmt]
 data ExpressionStmt = SExprOne | SExprTwo Exp
   deriving (Eq, Ord, Show, Read)
 
-data SelectionStmt = SSelOne Exp Stmt | SSelTwo Exp Stmt Stmt
+data SelectionStmt
+    = SSelOne Exp CompoundStmt | SSelTwo Exp CompoundStmt CompoundStmt
   deriving (Eq, Ord, Show, Read)
 
 data IterStmt

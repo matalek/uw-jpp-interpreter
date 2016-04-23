@@ -90,8 +90,6 @@ TypeSpecifier : 'void' { AbsMatal.TVoid }
               | TypeSpecifier '<<' TypeSpecifier '>>' { AbsMatal.TMap $1 $3 }
 StructSpec :: { StructSpec }
 StructSpec : 'struct' Ident '{' ListDec '}' { AbsMatal.Struct $2 (reverse $4) }
-ListIdent :: { [Ident] }
-ListIdent : Ident { (:[]) $1 } | Ident ',' ListIdent { (:) $1 $3 }
 FunctionDef :: { FunctionDef }
 FunctionDef : 'function' Declarator '(' ListDeclarator ')' FunctionBody { AbsMatal.FuncParams $2 $4 $6 }
 ListDeclarator :: { [Declarator] }
@@ -116,8 +114,8 @@ ExpressionStmt :: { ExpressionStmt }
 ExpressionStmt : ';' { AbsMatal.SExprOne }
                | Exp ';' { AbsMatal.SExprTwo $1 }
 SelectionStmt :: { SelectionStmt }
-SelectionStmt : 'if' '(' Exp ')' Stmt { AbsMatal.SSelOne $3 $5 }
-              | 'if' '(' Exp ')' Stmt 'else' Stmt { AbsMatal.SSelTwo $3 $5 $7 }
+SelectionStmt : 'if' '(' Exp ')' CompoundStmt { AbsMatal.SSelOne $3 $5 }
+              | 'if' '(' Exp ')' CompoundStmt 'else' CompoundStmt { AbsMatal.SSelTwo $3 $5 $7 }
 IterStmt :: { IterStmt }
 IterStmt : 'while' '(' Exp ')' Stmt { AbsMatal.SIterOne $3 $5 }
          | 'for' '(' ExpressionStmt ExpressionStmt ')' Stmt { AbsMatal.SIterTwo $3 $4 $6 }
@@ -144,12 +142,12 @@ Exp3 : Exp3 '<' Exp4 { AbsMatal.ELthen $1 $3 }
      | Exp3 '>=' Exp4 { AbsMatal.EGe $1 $3 }
      | Exp4 { $1 }
 Exp4 :: { Exp }
-Exp4 : Exp4 '+' Exp3 { AbsMatal.EPlus $1 $3 }
-     | Exp4 '-' Exp3 { AbsMatal.EMinus $1 $3 }
+Exp4 : Exp4 '+' Exp5 { AbsMatal.EPlus $1 $3 }
+     | Exp4 '-' Exp5 { AbsMatal.EMinus $1 $3 }
      | Exp5 { $1 }
 Exp5 :: { Exp }
-Exp5 : Exp5 '*' Exp4 { AbsMatal.ETimes $1 $3 }
-     | Exp5 '/' Exp4 { AbsMatal.EDiv $1 $3 }
+Exp5 : Exp5 '*' Exp6 { AbsMatal.ETimes $1 $3 }
+     | Exp5 '/' Exp6 { AbsMatal.EDiv $1 $3 }
      | Exp6 { $1 }
 Exp6 :: { Exp }
 Exp6 : Exp6 '.' Ident { AbsMatal.ESelect $1 $3 }

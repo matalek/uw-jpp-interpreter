@@ -34,8 +34,8 @@ The reserved words used in Matal are the following:
 
 The symbols used in Matal are the following:
   | ; | [] | << | >>
-  | { | } | , | (
-  | ) | [ | ] | ==
+  | { | } | ( | )
+  | , | [ | ] | ==
   | != | < | > | <=
   | >= | + | - | *
   | / | . | ++ | --
@@ -68,8 +68,6 @@ All other symbols are terminals.
   |  |  **|**  | //TypeSpecifier// ``[]`` 
   |  |  **|**  | //TypeSpecifier// ``<<`` //TypeSpecifier// ``>>`` 
   | //StructSpec// | -> | ``struct`` //Ident// ``{`` //[Dec]// ``}`` 
-  | //[Ident]// | -> | //Ident// 
-  |  |  **|**  | //Ident// ``,`` //[Ident]// 
   | //FunctionDef// | -> | ``function`` //Declarator// ``(`` //[Declarator]// ``)`` //FunctionBody// 
   | //[Declarator]// | -> | **eps**
   |  |  **|**  | //Declarator// 
@@ -86,8 +84,8 @@ All other symbols are terminals.
   | //CompoundStmt// | -> | ``{`` //[Dec]// //[Stmt]// ``}`` 
   | //ExpressionStmt// | -> | ``;`` 
   |  |  **|**  | //Exp// ``;`` 
-  | //SelectionStmt// | -> | ``if`` ``(`` //Exp// ``)`` //Stmt// 
-  |  |  **|**  | ``if`` ``(`` //Exp// ``)`` //Stmt// ``else`` //Stmt// 
+  | //SelectionStmt// | -> | ``if`` ``(`` //Exp// ``)`` //CompoundStmt// 
+  |  |  **|**  | ``if`` ``(`` //Exp// ``)`` //CompoundStmt// ``else`` //CompoundStmt// 
   | //IterStmt// | -> | ``while`` ``(`` //Exp// ``)`` //Stmt// 
   |  |  **|**  | ``for`` ``(`` //ExpressionStmt// //ExpressionStmt// ``)`` //Stmt// 
   |  |  **|**  | ``for`` ``(`` //ExpressionStmt// //ExpressionStmt// //Exp// ``)`` //Stmt// 
@@ -107,11 +105,11 @@ All other symbols are terminals.
   |  |  **|**  | //Exp3// ``<=`` //Exp4// 
   |  |  **|**  | //Exp3// ``>=`` //Exp4// 
   |  |  **|**  | //Exp4// 
-  | //Exp4// | -> | //Exp4// ``+`` //Exp3// 
-  |  |  **|**  | //Exp4// ``-`` //Exp3// 
+  | //Exp4// | -> | //Exp4// ``+`` //Exp5// 
+  |  |  **|**  | //Exp4// ``-`` //Exp5// 
   |  |  **|**  | //Exp5// 
-  | //Exp5// | -> | //Exp5// ``*`` //Exp4// 
-  |  |  **|**  | //Exp5// ``/`` //Exp4// 
+  | //Exp5// | -> | //Exp5// ``*`` //Exp6// 
+  |  |  **|**  | //Exp5// ``/`` //Exp6// 
   |  |  **|**  | //Exp6// 
   | //Exp6// | -> | //Exp6// ``.`` //Ident// 
   |  |  **|**  | //Exp6// ``[`` //Exp// ``]`` 

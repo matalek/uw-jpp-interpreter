@@ -80,8 +80,7 @@ instance Print Double where
 
 instance Print Ident where
   prt _ (Ident i) = doc (showString ( i))
-  prtList _ [x] = (concatD [prt 0 x])
-  prtList _ (x:xs) = (concatD [prt 0 x, doc (showString ","), prt 0 xs])
+
 
 
 instance Print Program where
@@ -149,8 +148,8 @@ instance Print ExpressionStmt where
 
 instance Print SelectionStmt where
   prt i e = case e of
-    SSelOne exp stmt -> prPrec i 0 (concatD [doc (showString "if"), doc (showString "("), prt 0 exp, doc (showString ")"), prt 0 stmt])
-    SSelTwo exp stmt1 stmt2 -> prPrec i 0 (concatD [doc (showString "if"), doc (showString "("), prt 0 exp, doc (showString ")"), prt 0 stmt1, doc (showString "else"), prt 0 stmt2])
+    SSelOne exp compoundstmt -> prPrec i 0 (concatD [doc (showString "if"), doc (showString "("), prt 0 exp, doc (showString ")"), prt 0 compoundstmt])
+    SSelTwo exp compoundstmt1 compoundstmt2 -> prPrec i 0 (concatD [doc (showString "if"), doc (showString "("), prt 0 exp, doc (showString ")"), prt 0 compoundstmt1, doc (showString "else"), prt 0 compoundstmt2])
 
 instance Print IterStmt where
   prt i e = case e of
@@ -176,10 +175,10 @@ instance Print Exp where
     EGrthen exp1 exp2 -> prPrec i 3 (concatD [prt 3 exp1, doc (showString ">"), prt 4 exp2])
     ELe exp1 exp2 -> prPrec i 3 (concatD [prt 3 exp1, doc (showString "<="), prt 4 exp2])
     EGe exp1 exp2 -> prPrec i 3 (concatD [prt 3 exp1, doc (showString ">="), prt 4 exp2])
-    EPlus exp1 exp2 -> prPrec i 4 (concatD [prt 4 exp1, doc (showString "+"), prt 3 exp2])
-    EMinus exp1 exp2 -> prPrec i 4 (concatD [prt 4 exp1, doc (showString "-"), prt 3 exp2])
-    ETimes exp1 exp2 -> prPrec i 5 (concatD [prt 5 exp1, doc (showString "*"), prt 4 exp2])
-    EDiv exp1 exp2 -> prPrec i 5 (concatD [prt 5 exp1, doc (showString "/"), prt 4 exp2])
+    EPlus exp1 exp2 -> prPrec i 4 (concatD [prt 4 exp1, doc (showString "+"), prt 5 exp2])
+    EMinus exp1 exp2 -> prPrec i 4 (concatD [prt 4 exp1, doc (showString "-"), prt 5 exp2])
+    ETimes exp1 exp2 -> prPrec i 5 (concatD [prt 5 exp1, doc (showString "*"), prt 6 exp2])
+    EDiv exp1 exp2 -> prPrec i 5 (concatD [prt 5 exp1, doc (showString "/"), prt 6 exp2])
     ESelect exp id -> prPrec i 6 (concatD [prt 6 exp, doc (showString "."), prt 0 id])
     EArray exp1 exp2 -> prPrec i 6 (concatD [prt 6 exp1, doc (showString "["), prt 0 exp2, doc (showString "]")])
     EFunk exp -> prPrec i 6 (concatD [prt 6 exp, doc (showString "("), doc (showString ")")])

@@ -2,13 +2,14 @@ function int main() {
 	int i;
 	bool<<int>> map;
 	for (i = 0; i < 10; i += 1)
-		if (i < 5)
+		if (i < 5) {
 			map<<i>> = true;
-		else
+		} else {
 			map<<i>> = false;
-	
+		}
+		
 	for (i = 0; i < 10; i += 1)
 		print map<<i>>;
-	
+
 	return 0;
 }

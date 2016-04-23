@@ -28,9 +28,6 @@ TMap.         TypeSpecifier ::= TypeSpecifier "<<" TypeSpecifier ">>" ;
 
 Struct.      StructSpec ::= "struct" Ident "{" [Dec] "}" ;
 
-(:[]).   [Ident] ::= Ident ;
-(:).     [Ident] ::= Ident "," [Ident] ;
-
 FuncParams.   FunctionDef ::= "function" Declarator "(" [Declarator] ")" FunctionBody;
 
 separator Declarator ",";
@@ -50,8 +47,8 @@ SCompOne.  CompoundStmt ::= "{" [Dec] [Stmt] "}" ;
 SExprOne.   ExpressionStmt ::= ";" ;
 SExprTwo.   ExpressionStmt ::= Exp ";" ;
 
-SSelOne.    SelectionStmt ::= "if" "(" Exp ")" Stmt ;
-SSelTwo.    SelectionStmt ::= "if" "(" Exp ")" Stmt "else" Stmt ;
+SSelOne.    SelectionStmt ::= "if" "(" Exp ")" CompoundStmt ;
+SSelTwo.    SelectionStmt ::= "if" "(" Exp ")" CompoundStmt "else" CompoundStmt ;
 
 SIterOne.   IterStmt ::= "while" "(" Exp ")" Stmt;
 SIterTwo. IterStmt ::= "for" "(" ExpressionStmt ExpressionStmt ")" Stmt ;
@@ -72,10 +69,10 @@ ELthen.       Exp3 ::= Exp3 "<" Exp4;
 EGrthen.      Exp3 ::= Exp3 ">" Exp4;
 ELe.          Exp3 ::= Exp3 "<=" Exp4;
 EGe.          Exp3 ::= Exp3 ">=" Exp4;
-EPlus.        Exp4 ::= Exp4 "+" Exp3;
-EMinus.       Exp4 ::= Exp4 "-" Exp3;
-ETimes.       Exp5 ::= Exp5 "*" Exp4;
-EDiv.         Exp5 ::= Exp5 "/" Exp4;
+EPlus.        Exp4 ::= Exp4 "+" Exp5;
+EMinus.       Exp4 ::= Exp4 "-" Exp5;
+ETimes.       Exp5 ::= Exp5 "*" Exp6;
+EDiv.         Exp5 ::= Exp5 "/" Exp6;
 ESelect.      Exp6 ::= Exp6 "." Ident;
 EArray.       Exp6 ::= Exp6 "[" Exp "]" ;
 EFunk.        Exp6 ::= Exp6 "(" ")";

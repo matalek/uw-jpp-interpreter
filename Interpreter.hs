@@ -70,9 +70,6 @@ alloc = do
   put $ insert loc (Int 0) store
   return loc
 
-skip :: Stmt
-skip = SComp (SCompOne [] [])
-
 -- Right now only for statements
 interpret :: Program -> (Result ())
 interpret p = do
@@ -106,12 +103,12 @@ transExpressionStmt (SExprTwo e) = do
 -- Selection statements
 transSelectionStmt :: SelectionStmt -> Interpreter ()
 transSelectionStmt (SSelOne e s) =
-  transSelectionStmt (SSelTwo e s skip) 
+  transSelectionStmt (SSelTwo e s (SCompOne [] [])) 
 transSelectionStmt (SSelTwo e s1 s2) = do
   val <- transExp e
   case val of
-    (Bool True) -> transStmt s1
-    _ -> transStmt s2
+    (Bool True) -> transStmt (SComp s1)
+    _ -> transStmt (SComp s2)
 
 -- Iter statements
 transIterStmt :: IterStmt -> Interpreter ()

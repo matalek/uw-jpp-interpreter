@@ -60,8 +60,8 @@ transExpressionStmt x = case x of
   SExprTwo exp -> failure x
 transSelectionStmt :: SelectionStmt -> Result
 transSelectionStmt x = case x of
-  SSelOne exp stmt -> failure x
-  SSelTwo exp stmt1 stmt2 -> failure x
+  SSelOne exp compoundstmt -> failure x
+  SSelTwo exp compoundstmt1 compoundstmt2 -> failure x
 transIterStmt :: IterStmt -> Result
 transIterStmt x = case x of
   SIterOne exp stmt -> failure x
