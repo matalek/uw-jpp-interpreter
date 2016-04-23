@@ -1,4 +1,5 @@
 function int main() {
+	print 1;
 	print 5/0;
 	return 0;
 }
