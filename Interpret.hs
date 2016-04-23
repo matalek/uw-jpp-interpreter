@@ -1,3 +1,6 @@
+-- Main file for Interpreter
+-- Aleksander Matusiak
+
 module Main where
   
 import LexMatal
@@ -10,9 +13,13 @@ import Checker
 import ErrM
 import Control.Monad.Except
 import Control.Monad.Trans.Except
-  
+import System.Environment
+       
 main = do
-  input <- getContents
+  args <- getArgs
+  input <- case args of
+    [] -> getContents
+    (file:_) -> readFile file
   case pProgram (myLexer input) of
     (Ok s) -> do
       analysis <- runExceptT $ check s
@@ -23,9 +30,4 @@ main = do
           case res of
             (Left e) -> hPutStrLn stderr $ "Runtime error: " ++ e
             _ -> return ()
-    (Bad s) -> hPutStrLn stderr s
-
-exec :: String -> ExceptT String IO ()
-exec input = 
-  let Ok s = pProgram (myLexer input) 
-  in interpret s
+    (Bad s) -> hPutStrLn stderr s -- syntax error
