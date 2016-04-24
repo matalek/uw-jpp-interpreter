@@ -150,18 +150,20 @@ Exp5 : Exp5 '*' Exp6 { AbsMatal.ETimes $1 $3 }
      | Exp5 '/' Exp6 { AbsMatal.EDiv $1 $3 }
      | Exp6 { $1 }
 Exp6 :: { Exp }
-Exp6 : Exp6 '.' Ident { AbsMatal.ESelect $1 $3 }
-     | Exp6 '[' Exp ']' { AbsMatal.EArray $1 $3 }
-     | Exp6 '(' ')' { AbsMatal.EFunk $1 }
-     | Exp6 '(' ListExp1 ')' { AbsMatal.EFunkPar $1 $3 }
-     | Exp6 '<<' Exp '>>' { AbsMatal.EMap $1 $3 }
-     | Exp7 { $1 }
+Exp6 : '-' Exp6 { AbsMatal.ENegative $2 } | Exp7 { $1 }
 Exp7 :: { Exp }
-Exp7 : Exp7 '++' { AbsMatal.EPostInc $1 }
-     | Exp7 '--' { AbsMatal.EPostDec $1 }
+Exp7 : Exp7 '.' Ident { AbsMatal.ESelect $1 $3 }
+     | Exp7 '[' Exp ']' { AbsMatal.EArray $1 $3 }
+     | Exp7 '(' ')' { AbsMatal.EFunk $1 }
+     | Exp7 '(' ListExp1 ')' { AbsMatal.EFunkPar $1 $3 }
+     | Exp7 '<<' Exp '>>' { AbsMatal.EMap $1 $3 }
      | Exp8 { $1 }
 Exp8 :: { Exp }
-Exp8 : Ident { AbsMatal.EVar $1 }
+Exp8 : Exp8 '++' { AbsMatal.EPostInc $1 }
+     | Exp8 '--' { AbsMatal.EPostDec $1 }
+     | Exp9 { $1 }
+Exp9 :: { Exp }
+Exp9 : Ident { AbsMatal.EVar $1 }
      | Constant { AbsMatal.EConst $1 }
      | '(' Exp ')' { $2 }
 Constant :: { Constant }

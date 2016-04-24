@@ -70,8 +70,7 @@ funcTypeOf (EVar f) = do
   if member f env then return $ env ! f
     else  lift $ throwE $ "Function " ++ showVar f ++  " not in scope."
 
--- ???????
-funcTypeOf _ = lift $ throwE "Some kind of error"
+funcTypeOf input = lift $ throwE $ "You cannot call something that is not a function: " ++ printTree input 
 
 structTypeOf :: Exp -> Checker StructType
 structTypeOf s = do
@@ -116,6 +115,11 @@ dataTypeOf (ELthen e1 e2) = checkBinOpBool e1 e2
 dataTypeOf (EGrthen e1 e2) = checkBinOpBool e1 e2
 dataTypeOf (ELe e1 e2) = checkBinOpBool e1 e2
 dataTypeOf (EGe e1 e2) = checkBinOpBool e1 e2
+
+dataTypeOf input@(ENegative e) = do
+  type1 <- dataTypeOf e
+  if type1 == Int then return Int
+  else lift $ throwE $ "Negative operator applied not to integer: " ++ printTree input
 
 dataTypeOf (EFunk f) = dataTypeOf (EFunkPar f [])
   

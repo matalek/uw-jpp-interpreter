@@ -143,10 +143,11 @@ transCompoundStmt (SCompOne ds ss) = do
   local (\_ -> newEnv) $ transStmts ss
 
 transInitStmt :: InitStmt -> Interpreter ()
-transInitStmt (SInitOne v e) = do
+transInitStmt input@(SInitOne v e) = do
   (Int n) <- transExp e
-  setVarVal v (Array n Data.Map.empty)
-
+  if n >= 0 then setVarVal v (Array n Data.Map.empty)
+    else lift $ lift $ throwE $ "An array cannot have negative size: " ++ printTree input
+         
 -- Expression evaluation
 transExp :: Exp -> Interpreter Val
 
@@ -185,6 +186,10 @@ transExp (ELthen e1 e2) = evalBinOpBool e1 e2 (<)
 transExp (EGrthen e1 e2) = evalBinOpBool e1 e2 (>)
 transExp (ELe e1 e2) = evalBinOpBool e1 e2 (<=)
 transExp (EGe e1 e2) = evalBinOpBool e1 e2 (>=)
+
+transExp (ENegative e) = do
+  (Int val) <- transExp e
+  return $ Int $ (-1)*val
 
 transExp (EFunk (EVar f)) = do
   (Fun fun) <- getFun f

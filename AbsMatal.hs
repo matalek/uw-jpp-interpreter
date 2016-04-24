@@ -84,6 +84,7 @@ data Exp
     | EMinus Exp Exp
     | ETimes Exp Exp
     | EDiv Exp Exp
+    | ENegative Exp
     | ESelect Exp Ident
     | EArray Exp Exp
     | EFunk Exp

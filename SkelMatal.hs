@@ -87,6 +87,7 @@ transExp x = case x of
   EMinus exp1 exp2 -> failure x
   ETimes exp1 exp2 -> failure x
   EDiv exp1 exp2 -> failure x
+  ENegative exp -> failure x
   ESelect exp ident -> failure x
   EArray exp1 exp2 -> failure x
   EFunk exp -> failure x
