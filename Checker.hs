@@ -283,7 +283,13 @@ checkStructSpec (Struct sname ds) = do
 checkProgram :: Program -> Checker ()
 checkProgram (Progr ds) = do
   env <- checkExternalDeclarations ds
-  return ()
+  funEnv <- local (const env) $ getFuncEnv
+  let main = Ident "main"
+  if not (member main funEnv) then lift $ throwE "Program must define main function"
+    else do
+    (_, params) <- local (const env) $ funcTypeOf (EVar main)
+    if params /= [] then lift $ throwE "Main function should take 0 arguments"
+      else return ()
 
 checkExternalDeclaration :: ExternalDeclaration -> Checker Env
 checkExternalDeclaration x =  case x of

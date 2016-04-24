@@ -1,0 +1,6 @@
+function int main() {
+  int[] arr;
+  init arr[10];
+  arr[true] = 1;
+	return 0;
+}

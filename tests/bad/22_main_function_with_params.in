@@ -1,0 +1,4 @@
+function int main(int a) {
+  print 0;
+	return 0;
+}
