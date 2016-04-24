@@ -2,7 +2,7 @@
 # wersja: 1.0
 
 ############### Preferencje ###############
-plik_exe=Interpret
+plik_exe=interpret
 
 folder_z_testami='./tests/bad/'
 rozszerzenie_dane='.in'
