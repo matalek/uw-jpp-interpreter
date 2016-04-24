@@ -1,6 +1,7 @@
 module Interpreter where
 
 import AbsMatal
+import PrintMatal
 import Control.Monad.State
 import Control.Monad.Reader
 import Control.Monad.Except
@@ -193,20 +194,23 @@ transExp (EFunkPar (EVar f) exps) = do
   (Fun fun) <- getFun f
   fun arguments
 
-transExp (EArray a exp) = do
+transExp input@(EArray a exp) = do
   (Int i) <- transExp $ exp
   (Array n array) <- transExp a
-  if i >= 0 && i < n then return $ array ! i
+  if i >= 0 && i < n then if member i array then return $ array ! i
+                          else lift $ lift $ throwE $ "There element in the array was not initialized: " ++ printTree input
     else lift $ lift $ throwE $ "Index out of bounds, index: " ++ (show i) ++ ", size: " ++ (show n) 
 
-transExp (EMap m exp) = do
+transExp input@(EMap m exp) = do
   key <- transExp exp
   (Mapp map) <- transExp m
-  return $ map ! key
+  if member key map then return $ map ! key
+    else lift $ lift $ throwE $ "There is no such element in the map: " ++ printTree input
 
-transExp (ESelect s field) = do
+transExp input@(ESelect s field) = do
   (Structt struct) <- transExp s
-  return $ struct ! field
+  if member field struct then  return $ struct ! field
+    else lift $ lift $ throwE $ "The field was not initialized: " ++ printTree input
 
 transExp x = do
   lift $ lift $ throwE $  "No trans for: " ++ (show x)

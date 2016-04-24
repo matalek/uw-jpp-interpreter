@@ -1,0 +1,9 @@
+struct person {
+  bool male;
+}
+
+function int main() {
+	struct person bob;
+  print bob.age;
+	return 0;
+}
