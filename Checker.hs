@@ -80,7 +80,7 @@ structTypeOf s = do
     (Structt struct) -> do
       if member struct env then return $ env ! struct
         else lift $ throwE $ "Struct " ++ showVar struct ++ " not defined"
-    _ -> lift $ throwE "Not a struct"
+    _ -> lift $ throwE $ "Not a struct: " ++ printTree s
 
 dataTypeOf :: Exp -> Checker DataType
 
@@ -94,7 +94,6 @@ dataTypeOf (EVar v) = do
   if member v env then return $ env ! v
     else lift $ throwE $ "Variable " ++ showVar v ++  " not in scope."
 
--- very easy right now, will have to add lvalues
 dataTypeOf exp@(EAssign e1 _ e2) = do
   let lValue = isLValue e1
   type1 <- dataTypeOf e1
@@ -171,7 +170,7 @@ checkBinOpBool input1@e1 input2@e2 = do
     else lift $ throwE $ "Compare operator applied not to integers: " ++ printTree e1 ++ " and " ++ printTree e2
 
 -- Check, whether given expression can be on the left side of the assignment operator.
--- We only accept single-level assignment (you cannot for example assign a field for an
+-- We accept only single-level assignment (you cannot for example assign a field for an
 -- object in an array).
 isLValue :: Exp -> Bool 
 isLValue (EVar _) = True
@@ -206,9 +205,9 @@ checkSelectionStmt (SSelOne e s) =
 checkSelectionStmt input@(SSelTwo e s1 s2) = do
   cond <- dataTypeOf e
   if cond == Bool then do
-    checkStmt (SComp s1)
-    checkStmt (SComp s2)
-  else lift $ throwE $"The type of condition is not bool: " ++ printTree input
+    checkCompoundStmt s1
+    checkCompoundStmt s2
+  else lift $ throwE $ "The type of condition is not bool: " ++ printTree input
 
 checkIterStmt :: IterStmt -> Checker ()
 checkIterStmt (SIterOne e s) = checkIterStmt (SIterTwo (SExprTwo (EConst ETrue)) (SExprTwo e) s) 
@@ -224,13 +223,13 @@ checkIterStmt input@(SIterThree es1 es2 e s) = do
     else lift $ throwE $ "The type of condition is not bool: " ++ printTree input
 
 dataTypeOfStmt :: ExpressionStmt -> Checker DataType
-dataTypeOfStmt SExprOne = return Void -- don't know ???
+dataTypeOfStmt SExprOne = return Void
 dataTypeOfStmt (SExprTwo e) = dataTypeOf e
 
 checkCompoundStmt :: CompoundStmt -> Checker ()
 checkCompoundStmt (SCompOne ds ss) = do
   newEnv <- checkDec ds
-  local (\_ -> newEnv) $ checkStmts ss
+  local (const newEnv) $ checkStmts ss
 
 checkInitStmt :: InitStmt -> Checker ()
 checkInitStmt input@(SInitOne v e) = do
@@ -249,27 +248,27 @@ checkDec :: [Dec] -> Checker Env
 checkDec [] = ask
 checkDec ((Declaration (DVariable t v)):ds) = do
   env <- setDataType v $ toDataType t
-  local (\_ -> env) $ checkDec ds
+  local (const env) $ checkDec ds
 
 
 checkFuncDefs :: [FunctionDef] -> Checker Env
 checkFuncDefs [] = ask
 checkFuncDefs (f:fs) = do
   newEnv1 <- checkFuncDef f
-  local (\_ -> newEnv1) $ checkFuncDefs fs
+  local (const newEnv1) $ checkFuncDefs fs
 
 checkFuncDef :: FunctionDef -> Checker Env
 checkFuncDef (FuncParams (DVariable returnType funName) params (FuncBodyOne ds fs stmts es)) = do
   let paramsDec = Prelude.map (\ x -> (Declaration x)) params
   env1 <- checkDec paramsDec -- params
-  env2 <- local (\_ -> env1) $ checkDec ds -- declarations
+  env2 <- local (const env1) $ checkDec ds -- declarations
   let paramsType = Prelude.map (\(DVariable paramType _) -> toDataType paramType) params 
   let funcType = (toDataType returnType, paramsType)
-  env3 <- local (\_ -> env2) $ setFuncType funName funcType -- recursion
-  env4 <- local (\_ -> env3) $ checkFuncDefs fs -- inner functions
-  local (\_ -> env4) $ mapM checkStmt stmts
+  env3 <- local (const env2) $ setFuncType funName funcType -- recursion
+  env4 <- local (const env3) $ checkFuncDefs fs -- inner functions
+  local (const env4) $ mapM checkStmt stmts
   let ret1 = toDataType returnType 
-  ret2 <- local (\_ -> env4) $ dataTypeOfStmt es
+  ret2 <- local (const env4) $ dataTypeOfStmt es
   if ret1 /= ret2 then lift $ throwE $ "Return type is not correct for function: " ++ showVar funName
     else setFuncType funName funcType
 

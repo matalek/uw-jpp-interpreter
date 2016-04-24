@@ -22,9 +22,6 @@ type Result = ExceptT String IO
 
 type Interpreter a = StateT Store (ReaderT Env Result) a
 
-failure :: Show a => a -> Interpreter ()
-failure x = error $ "Undefined case: " ++ show x
-
 getVarLoc :: Var -> Interpreter Loc
 getVarLoc v = do
   env <- ask
@@ -63,27 +60,26 @@ showVal (Bool b)
   | otherwise = "false"
 showVal (Array _ _) = "array"
 showVal (Mapp _) = "map"
+showVal (Structt _) = "struct"
 
 alloc :: Interpreter Loc
 alloc = do
   store <- get
   let loc = if size store /= 0 then (fst $ findMax store) + 1 else 1
-  put $ insert loc (Int 0) store
+  put $ insert loc (Int 0) store -- the value is not important - it is overriden in declaration
   return loc
 
--- Right now only for statements
 interpret :: Program -> (Result ())
 interpret p = do
   runReaderT (execStateT (transProgram p) empty) (empty, empty)
   return ()
 
-transStmts :: [Stmt] -> Interpreter ()
-transStmts [] = return ()
-transStmts (s:ss) = do
-  transStmt s
-  transStmts ss
-
 -- Statement execution
+transStmts :: [Stmt] -> Interpreter ()
+transStmts ss = do
+  mapM transStmt ss
+  return ()
+
 transStmt :: Stmt -> Interpreter ()
 transStmt x = case x of
   SComp compoundStmt  -> transCompoundStmt compoundStmt
@@ -92,7 +88,6 @@ transStmt x = case x of
   SIter iterStmt  -> transIterStmt iterStmt
   SPrint printStmt  -> transPrintStmt printStmt
   SInit initStmt  -> transInitStmt initStmt
-
 
 -- Expression statements
 transExpressionStmt :: ExpressionStmt -> Interpreter ()
@@ -108,8 +103,8 @@ transSelectionStmt (SSelOne e s) =
 transSelectionStmt (SSelTwo e s1 s2) = do
   val <- transExp e
   case val of
-    (Bool True) -> transStmt (SComp s1)
-    _ -> transStmt (SComp s2)
+    (Bool True) -> transCompoundStmt s1
+    _ -> transCompoundStmt s2
 
 -- Iter statements
 transIterStmt :: IterStmt -> Interpreter ()
@@ -140,8 +135,9 @@ transPrintStmt (SPrintOne  e) = do
 transCompoundStmt :: CompoundStmt -> Interpreter ()
 transCompoundStmt (SCompOne ds ss) = do
   newEnv <- transDec ds
-  local (\_ -> newEnv) $ transStmts ss
+  local (const newEnv) $ transStmts ss
 
+-- Init statements
 transInitStmt :: InitStmt -> Interpreter ()
 transInitStmt input@(SInitOne v e) = do
   (Int n) <- transExp e
@@ -156,7 +152,7 @@ transExp (EConst c) = case c of
   ETrue -> return $ Bool True
   EFalse -> return $ Bool False
 
-transExp (EVar v) = do getVarVal v
+transExp (EVar v) = getVarVal v
 
 transExp (EAssign e1 op e2) = do
   newVal <-
@@ -191,9 +187,8 @@ transExp (ENegative e) = do
   (Int val) <- transExp e
   return $ Int $ (-1)*val
 
-transExp (EFunk (EVar f)) = do
-  (Fun fun) <- getFun f
-  fun []
+transExp (EFunk (EVar f)) = transExp (EFunkPar (EVar f) []) 
+  
 transExp (EFunkPar (EVar f) exps) = do
   arguments <- mapM transExp exps
   (Fun fun) <- getFun f
@@ -203,7 +198,7 @@ transExp input@(EArray a exp) = do
   (Int i) <- transExp $ exp
   (Array n array) <- transExp a
   if i >= 0 && i < n then if member i array then return $ array ! i
-                          else lift $ lift $ throwE $ "There element in the array was not initialized: " ++ printTree input
+                          else lift $ lift $ throwE $ "The element in the array was not initialized: " ++ printTree input
     else lift $ lift $ throwE $ "Index out of bounds, index: " ++ (show i) ++ ", size: " ++ (show n) 
 
 transExp input@(EMap m exp) = do
@@ -216,9 +211,6 @@ transExp input@(ESelect s field) = do
   (Structt struct) <- transExp s
   if member field struct then  return $ struct ! field
     else lift $ lift $ throwE $ "The field was not initialized: " ++ printTree input
-
-transExp x = do
-  lift $ lift $ throwE $  "No trans for: " ++ (show x)
 
 evalBinOpInt :: Exp -> Exp -> (Int -> Int -> Int) -> Interpreter Val
 evalBinOpInt e1 e2 op = do
@@ -234,13 +226,13 @@ evalBinOpBool e1 e2 op = do
 
 assign :: Exp -> Val -> Interpreter ()
 assign (EVar var) val = setVarVal var val
+
 assign (EArray (EVar var) exp) val = do
   (Int i) <- transExp $ exp
   (Array n arr) <- getVarVal var
   if i >= 0 && i < n then setVarVal var (Array n $ insert i val arr)
     else lift $ lift $ throwE $ "Index out of bounds, index: " ++ (show i) ++ ", size: " ++ (show n) 
   
-
 assign (EMap (EVar var) exp) val = do
   key <- transExp $ exp
   (Mapp map) <- getVarVal var
@@ -252,7 +244,6 @@ assign (ESelect (EVar var) field) val = do
   let newStruct = insert field val struct
   setVarVal var $ Structt newStruct
 
-
 -- Declaration evaluations
 transDec :: [Dec] -> Interpreter Env
 
@@ -260,8 +251,7 @@ transDec [] = ask
 transDec ((Declaration (DVariable t v)):ds) = do
   loc <- alloc
   modify (\store -> insert loc (initialValue t) store)
-  newEnv <- local (setLoc v loc) $ transDec ds
-  return newEnv
+  local (setLoc v loc) $ transDec ds
 
 initialValue :: TypeSpecifier -> Val
 initialValue TInt = Int 0
@@ -280,28 +270,21 @@ transFuncDef :: FunctionDef -> Interpreter Env
 transFuncDef (FuncParams (DVariable _ funName) params (FuncBodyOne ds fs stmts es)) = do
   env <- ask
   let fun arguments = do
-        env' <- local (\_ -> env) $ transArguments params arguments
-        env'' <- local (\_ -> env') $ transDec ds
-        let env'''  = setFun funName (Fun fun) env''
-        env'''' <- local (\_ -> env''') $ transFuncDefs fs
-        local (\_ -> env'''') $ transStmts stmts
+        env' <- local (const env) $ transArguments params arguments -- params
+        env'' <- local (const env') $ transDec ds -- declarations
+        let env'''  = setFun funName (Fun fun) env'' -- recursion
+        env'''' <- local (const env''') $ transFuncDefs fs -- inner functions
+        local (const env'''') $ transStmts stmts
         case es of
           SExprOne -> return $ Int 0 -- procedure, returning whatever
-          SExprTwo e -> local (\_ -> env'''') $ transExp e
+          SExprTwo e -> local (const env'''') $ transExp e
   return $ setFun funName (Fun fun) env
 
 transFuncDefs :: [FunctionDef] -> Interpreter Env
 transFuncDefs [] = ask
 transFuncDefs (f:fs) = do
   newEnv1 <- transFuncDef f
-  local (\_ -> newEnv1) $ transFuncDefs fs
-
-transParams :: [Declarator] -> Interpreter Env
-transParams [] = ask
-transParams ((DVariable _ var):ds) = do
-  loc <- alloc
-  newEnv <- local (setLoc var loc) $ transParams ds
-  return newEnv
+  local (const newEnv1) $ transFuncDefs fs
 
 transArguments :: [Declarator] -> [Val] -> Interpreter Env
 transArguments [] [] = ask
@@ -312,19 +295,20 @@ transArguments ((DVariable _ var):ds) (v:vs) = do
   return newEnv
 
 transStructDec :: StructSpec -> Interpreter Env
+-- Struct declarations are only necessary for static analysis
 transStructDec _ = ask
 
 transExternalDeclarations :: [ExternalDeclaration] -> Interpreter Env
 transExternalDeclarations [] = ask
 transExternalDeclarations (d:ds) = do
   newEnv1 <- transExternalDeclaration d
-  newEnv2 <- local (\_ -> newEnv1) $ transExternalDeclarations ds
+  newEnv2 <- local (const newEnv1) $ transExternalDeclarations ds
   return newEnv2
 
 -- Program execution
 transProgram :: Program -> Interpreter ()
 transProgram (Progr ds) = do
   env <- transExternalDeclarations ds
-  (Fun main) <- local (\_ -> env) $ getFun (Ident "main")
-  local (\_ -> env) $ main []
+  (Fun main) <- local (const env) $ getFun (Ident "main")
+  local (const env) $ main []
   return ()
