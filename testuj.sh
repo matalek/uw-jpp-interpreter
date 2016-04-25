@@ -4,7 +4,7 @@
 ############### Preferencje ###############
 plik_exe=interpret
 
-folder_z_testami='./tests/bad/'
+folder_z_testami='./tests/'
 rozszerzenie_dane='.in'
 rozszerzenie_wynik='.out'
 rozszerzenie_wyj_bledow='.err'
