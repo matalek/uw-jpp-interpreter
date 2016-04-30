@@ -231,7 +231,6 @@ evalBinOpBool e1 e2 op = do
   (Int val2) <- transExp e2
   return $ Bool $ op val1 val2
 
-
 deepCopy :: Val -> Interpreter Val
 deepCopy (Int v) = return $ Int v
 deepCopy (Bool v) = return $ Bool v
@@ -245,7 +244,6 @@ deepCopy (Structt struct) = do
   newStruct <- mapM copyAux struct
   return $ Structt newStruct
 
-
 copyAux :: Loc -> Interpreter Loc
 copyAux loc = do
   newLoc <- alloc
@@ -254,6 +252,7 @@ copyAux loc = do
   modify (insert newLoc val)
   return newLoc
 
+-- Calculates a location, where expression value is stored. Necessary for assignments
 toLoc :: Exp -> Interpreter Loc
 
 toLoc (EVar var) = getVarLoc var
@@ -292,7 +291,6 @@ toLoc (EMap v exp) = do
      modify (\store -> insert mapLoc newMap store)
      return loc
 
-
 toLoc (ESelect v field) = do
   structLoc <- toLoc v
   val <- getLocVal structLoc
@@ -308,7 +306,6 @@ toLoc (ESelect v field) = do
     return loc
 
 assign :: Exp -> Val -> Interpreter ()
-
 assign exp val = do
   loc <- toLoc exp
   valCopy <- deepCopy val

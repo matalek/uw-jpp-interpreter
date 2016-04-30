@@ -237,6 +237,7 @@ checkInitStmt input@(SInitOne e1 e2) = do
   type2 <- dataTypeOf e2
   case (type1, type2) of
     (Array _, Int) -> return ()
+    (_, Int) ->  lift $ throwE $ "You can init only an array: " ++ printTree input
     _ -> lift $ throwE $ "Size of array is not an integer: " ++ printTree input
 
 checkPrintStmt :: PrintStmt -> Checker ()
@@ -250,7 +251,6 @@ checkDec [] = ask
 checkDec ((Declaration (DVariable t v)):ds) = do
   env <- setDataType v $ toDataType t
   local (const env) $ checkDec ds
-
 
 checkFuncDefs :: [FunctionDef] -> Checker Env
 checkFuncDefs [] = ask
