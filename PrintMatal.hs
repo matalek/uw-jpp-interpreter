@@ -163,7 +163,7 @@ instance Print PrintStmt where
 
 instance Print InitStmt where
   prt i e = case e of
-    SInitOne id exp -> prPrec i 0 (concatD [doc (showString "init"), prt 0 id, doc (showString "["), prt 0 exp, doc (showString "]"), doc (showString ";")])
+    SInitOne exp1 exp2 -> prPrec i 0 (concatD [prt 0 exp1, doc (showString "init"), prt 0 exp2, doc (showString ";")])
 
 instance Print Exp where
   prt i e = case e of

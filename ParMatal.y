@@ -123,7 +123,7 @@ IterStmt : 'while' '(' Exp ')' Stmt { AbsMatal.SIterOne $3 $5 }
 PrintStmt :: { PrintStmt }
 PrintStmt : 'print' Exp ';' { AbsMatal.SPrintOne $2 }
 InitStmt :: { InitStmt }
-InitStmt : 'init' Ident '[' Exp ']' ';' { AbsMatal.SInitOne $2 $4 }
+InitStmt : Exp 'init' Exp ';' { AbsMatal.SInitOne $1 $3 }
 ListStmt :: { [Stmt] }
 ListStmt : {- empty -} { [] } | ListStmt Stmt { flip (:) $1 $2 }
 Exp :: { Exp }

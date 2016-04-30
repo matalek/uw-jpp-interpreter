@@ -72,7 +72,7 @@ transPrintStmt x = case x of
   SPrintOne exp -> failure x
 transInitStmt :: InitStmt -> Result
 transInitStmt x = case x of
-  SInitOne ident exp -> failure x
+  SInitOne exp1 exp2 -> failure x
 transExp :: Exp -> Result
 transExp x = case x of
   EComma exp1 exp2 -> failure x

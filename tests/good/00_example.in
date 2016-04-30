@@ -25,9 +25,10 @@ function int main() {
   struct person<<int>> peopleByAge;
   struct person temp;
 
-  init people[10];
+  people init 10;
   // Creating example data
   for (i = 0; i < 5; i++) {
+    // Just to show, that during assigment objects are copied
     temp.age = i * 10;
     temp.male = true;
     people[i] = temp;

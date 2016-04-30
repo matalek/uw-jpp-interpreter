@@ -232,11 +232,12 @@ checkCompoundStmt (SCompOne ds ss) = do
   local (const newEnv) $ checkStmts ss
 
 checkInitStmt :: InitStmt -> Checker ()
-checkInitStmt input@(SInitOne v e) = do
-  _ <- dataTypeOf (EVar v) -- check if v was declared
-  type2 <- dataTypeOf e
-  if type2 == Int then return ()
-    else lift $ throwE $ "Size of array is not an integer: " ++ printTree input
+checkInitStmt input@(SInitOne e1 e2) = do
+  type1 <- dataTypeOf e1
+  type2 <- dataTypeOf e2
+  case (type1, type2) of
+    (Array _, Int) -> return ()
+    _ -> lift $ throwE $ "Size of array is not an integer: " ++ printTree input
 
 checkPrintStmt :: PrintStmt -> Checker ()
 checkPrintStmt input@(SPrintOne e) = do

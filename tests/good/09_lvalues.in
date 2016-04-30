@@ -10,8 +10,7 @@ function int main() {
   struct s2 a;
   struct s1[] temp;
 
-  init temp[13];
-  a.b = temp;
+  a.b init 13;
   a.b[12].x = 7;
 
   print a.b[12].x;

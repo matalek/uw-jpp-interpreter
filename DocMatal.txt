@@ -35,10 +35,10 @@ The reserved words used in Matal are the following:
 The symbols used in Matal are the following:
   | ; | [] | << | >>
   | { | } | ( | )
-  | , | [ | ] | ==
-  | != | < | > | <=
-  | >= | + | - | *
-  | / | . | ++ | --
+  | , | == | != | <
+  | > | <= | >= | +
+  | - | * | / | .
+  | [ | ] | ++ | --
   | = | *= | /= | +=
   | -= |  |  | 
 
@@ -90,7 +90,7 @@ All other symbols are terminals.
   |  |  **|**  | ``for`` ``(`` //ExpressionStmt// //ExpressionStmt// ``)`` //Stmt// 
   |  |  **|**  | ``for`` ``(`` //ExpressionStmt// //ExpressionStmt// //Exp// ``)`` //Stmt// 
   | //PrintStmt// | -> | ``print`` //Exp// ``;`` 
-  | //InitStmt// | -> | ``init`` //Ident// ``[`` //Exp// ``]`` ``;`` 
+  | //InitStmt// | -> | //Exp// ``init`` //Exp// ``;`` 
   | //[Stmt]// | -> | **eps**
   |  |  **|**  | //Stmt// //[Stmt]// 
   | //Exp// | -> | //Exp// ``,`` //Exp1// 

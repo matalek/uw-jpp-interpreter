@@ -145,9 +145,10 @@ transCompoundStmt (SCompOne ds ss) = do
 
 -- Init statements
 transInitStmt :: InitStmt -> Interpreter ()
-transInitStmt input@(SInitOne v e) = do
-  (Int n) <- transExp e
-  if n >= 0 then setVarVal v (Array n Data.Map.empty)
+transInitStmt input@(SInitOne e1 e2) = do
+  loc <- toLoc e1
+  (Int n) <- transExp e2
+  if n >= 0 then modify (insert loc (Array n Data.Map.empty))
     else lift $ lift $ throwE $ "An array cannot have negative size: " ++ printTree input
          
 -- Expression evaluation

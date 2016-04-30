@@ -68,7 +68,7 @@ data IterStmt
 data PrintStmt = SPrintOne Exp
   deriving (Eq, Ord, Show, Read)
 
-data InitStmt = SInitOne Ident Exp
+data InitStmt = SInitOne Exp Exp
   deriving (Eq, Ord, Show, Read)
 
 data Exp

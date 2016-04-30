@@ -56,7 +56,7 @@ SIterThree.  IterStmt ::= "for" "(" ExpressionStmt ExpressionStmt Exp ")" Stmt;
 
 SPrintOne.     PrintStmt ::= "print" Exp ";" ;
 
-SInitOne.      InitStmt ::= "init" Ident "[" Exp "]" ";" ;
+SInitOne.      InitStmt ::= Exp "init" Exp ";" ;
 
 [].   [Stmt] ::= ;
 (:).     [Stmt] ::= Stmt [Stmt];
