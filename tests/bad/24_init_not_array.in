@@ -1,0 +1,5 @@
+function int main() {
+  int a;
+  a init 10;
+	return 0;
+}
