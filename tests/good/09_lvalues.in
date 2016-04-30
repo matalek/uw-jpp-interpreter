@@ -1,0 +1,19 @@
+struct s1 {
+  int x;
+}
+
+struct s2 {
+  struct s1[] b;
+}
+
+function int main() {
+  struct s2 a;
+  struct s1[] temp;
+
+  init temp[13];
+  a.b = temp;
+  a.b[12].x = 7;
+
+  print a.b[12].x;
+	return 0;
+}

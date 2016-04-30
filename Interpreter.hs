@@ -275,7 +275,6 @@ toLoc (EArray v exp) = do
       modify (\store -> insert arrLoc newArr store)
       return loc
 
-
 toLoc (EMap v exp) = do
   key <- transExp exp
   mapLoc <- toLoc v
@@ -307,38 +306,12 @@ toLoc (ESelect v field) = do
     modify (insert structLoc newStruct)
     return loc
 
-
 assign :: Exp -> Val -> Interpreter ()
 
 assign exp val = do
   loc <- toLoc exp
   valCopy <- deepCopy val
   modify (insert loc valCopy) 
-
-assign (EVar var) val = setVarVal var val
-
-assign (EArray (EVar var) exp) val = do
-  (Int i) <- transExp $ exp
-  (Array n arr) <- getVarVal var
-  loc <- alloc
-  modify (\store -> insert loc val store)
-  if i >= 0 && i < n then setVarVal var (Array n $ insert i loc arr)
-    else lift $ lift $ throwE $ "Index out of bounds, index: " ++ (show i) ++ ", size: " ++ (show n) 
-  
-assign (EMap (EVar var) exp) val = do
-  key <- transExp $ exp
-  (Mapp map) <- getVarVal var
-  loc <- alloc
-  modify (\store -> insert loc val store)
-  let newMap = insert key loc map
-  setVarVal var $ Mapp newMap
-
-assign (ESelect (EVar var) field) val = do
-  (Structt struct) <- getVarVal var
-  loc <- alloc
-  modify (\store -> insert loc val store)
-  let newStruct = insert field loc struct
-  setVarVal var $ Structt newStruct
 
 -- Declaration evaluations
 transDec :: [Dec] -> Interpreter Env
