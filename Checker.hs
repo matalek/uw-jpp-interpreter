@@ -174,9 +174,9 @@ checkBinOpBool input1@e1 input2@e2 = do
 -- object in an array).
 isLValue :: Exp -> Bool 
 isLValue (EVar _) = True
-isLValue (EArray (EVar _) _) = True
-isLValue (EMap (EVar _) _) = True
-isLValue (ESelect (EVar _) _) = True
+isLValue (EArray _ _) = True
+isLValue (EMap _ _) = True
+isLValue (ESelect _ _) = True
 isLValue _ = False
 
 checkStmts :: [Stmt] -> Checker ()

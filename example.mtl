@@ -34,9 +34,8 @@ function int main() {
   }
 
   for (i = 5; i < 10; i++) {
-    temp.age = i * 10;
-    temp.male = false;
-    people[i] = temp;
+    people[i].age = i * 10;
+    people[i].male = false;
   }
 
 

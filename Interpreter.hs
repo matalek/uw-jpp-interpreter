@@ -12,7 +12,7 @@ import ErrM
 type Var = Ident
 type FName = Ident
 type Loc = Int
-data Val = Int Int | Bool Bool | Array Int (Map Int Val) | Mapp (Map Val Val) | Structt (Map Ident Val) deriving (Show, Eq, Ord)
+data Val = Int Int | Bool Bool | Array Int (Map Int Loc) | Mapp (Map Val Loc) | Structt (Map Ident Loc) | Null deriving (Show, Eq, Ord)
 newtype Fun = Fun ([Val] -> Interpreter Val)
 
 type Store = Map Loc Val
@@ -53,6 +53,11 @@ setVarVal var val = do
   loc <- getVarLoc var
   modify $ insert loc val
 
+getLocVal :: Loc -> Interpreter Val
+getLocVal loc = do
+  store <- get
+  return $ store ! loc
+
 showVal :: Val -> String
 showVal (Int i) = show i
 showVal (Bool b)
@@ -61,12 +66,13 @@ showVal (Bool b)
 showVal (Array _ _) = "array"
 showVal (Mapp _) = "map"
 showVal (Structt _) = "struct"
+showVal Null = "null"
 
 alloc :: Interpreter Loc
 alloc = do
   store <- get
   let loc = if size store /= 0 then (fst $ findMax store) + 1 else 1
-  put $ insert loc (Int 0) store -- the value is not important - it is overriden in declaration
+  put $ insert loc Null store -- the value is not important - it is overriden in declaration
   return loc
 
 interpret :: Program -> (Result ())
@@ -197,19 +203,19 @@ transExp (EFunkPar (EVar f) exps) = do
 transExp input@(EArray a exp) = do
   (Int i) <- transExp $ exp
   (Array n array) <- transExp a
-  if i >= 0 && i < n then if member i array then return $ array ! i
+  if i >= 0 && i < n then if member i array then getLocVal $ array ! i
                           else lift $ lift $ throwE $ "The element in the array was not initialized: " ++ printTree input
     else lift $ lift $ throwE $ "Index out of bounds, index: " ++ (show i) ++ ", size: " ++ (show n) 
 
 transExp input@(EMap m exp) = do
   key <- transExp exp
   (Mapp map) <- transExp m
-  if member key map then return $ map ! key
+  if member key map then getLocVal $ map ! key
     else lift $ lift $ throwE $ "There is no such element in the map: " ++ printTree input
 
 transExp input@(ESelect s field) = do
   (Structt struct) <- transExp s
-  if member field struct then  return $ struct ! field
+  if member field struct then  getLocVal $ struct ! field
     else lift $ lift $ throwE $ "The field was not initialized: " ++ printTree input
 
 evalBinOpInt :: Exp -> Exp -> (Int -> Int -> Int) -> Interpreter Val
@@ -224,24 +230,114 @@ evalBinOpBool e1 e2 op = do
   (Int val2) <- transExp e2
   return $ Bool $ op val1 val2
 
+
+deepCopy :: Val -> Interpreter Val
+deepCopy (Int v) = return $ Int v
+deepCopy (Bool v) = return $ Bool v
+deepCopy (Array n arr) = do
+  newArr <- mapM copyAux arr
+  return $ Array n newArr
+deepCopy (Mapp map) = do
+  newMap <- mapM copyAux map
+  return $ Mapp newMap
+deepCopy (Structt struct) = do
+  newStruct <- mapM copyAux struct
+  return $ Structt newStruct
+
+
+copyAux :: Loc -> Interpreter Loc
+copyAux loc = do
+  newLoc <- alloc
+  store <- get
+  val <- deepCopy $ store ! loc
+  modify (insert newLoc val)
+  return newLoc
+
+toLoc :: Exp -> Interpreter Loc
+
+toLoc (EVar var) = getVarLoc var
+
+toLoc (EArray v exp) = do
+  (Int i) <- transExp exp
+  arrLoc <- toLoc v
+  val <- getLocVal arrLoc
+  let (n, arr) = case val of
+        Null -> (0, Data.Map.empty)
+        (Array n' arr') -> (n', arr')
+  if i < 0 || i >= n then lift $ lift $ throwE $ "Index out of bounds, index: " ++ (show i) ++ ", size: " ++ (show n)
+    else do
+    if member i arr then do
+      let loc = arr ! i
+      return loc
+      else do
+      loc <- alloc
+      let newArr = Array n $ insert i loc arr
+      modify (\store -> insert arrLoc newArr store)
+      return loc
+
+
+toLoc (EMap v exp) = do
+  key <- transExp exp
+  mapLoc <- toLoc v
+  val <- getLocVal mapLoc
+  let map = case val of
+        Null -> Data.Map.empty
+        (Mapp map') -> map'
+  if member key map then do
+     let loc = map ! key
+     return loc
+    else do
+     loc <- alloc
+     let newMap = Mapp $ insert key loc map
+     modify (\store -> insert mapLoc newMap store)
+     return loc
+
+
+toLoc (ESelect v field) = do
+  structLoc <- toLoc v
+  val <- getLocVal structLoc
+  let struct = case val of
+        Null -> Data.Map.empty 
+        (Structt s) -> s
+  if member field struct then do
+    return $ struct ! field
+    else do
+    loc <- alloc
+    let newStruct = Structt $ insert field loc struct
+    modify (insert structLoc newStruct)
+    return loc
+
+
 assign :: Exp -> Val -> Interpreter ()
+
+assign exp val = do
+  loc <- toLoc exp
+  valCopy <- deepCopy val
+  modify (insert loc valCopy) 
+
 assign (EVar var) val = setVarVal var val
 
 assign (EArray (EVar var) exp) val = do
   (Int i) <- transExp $ exp
   (Array n arr) <- getVarVal var
-  if i >= 0 && i < n then setVarVal var (Array n $ insert i val arr)
+  loc <- alloc
+  modify (\store -> insert loc val store)
+  if i >= 0 && i < n then setVarVal var (Array n $ insert i loc arr)
     else lift $ lift $ throwE $ "Index out of bounds, index: " ++ (show i) ++ ", size: " ++ (show n) 
   
 assign (EMap (EVar var) exp) val = do
   key <- transExp $ exp
   (Mapp map) <- getVarVal var
-  let newMap = insert key val map
+  loc <- alloc
+  modify (\store -> insert loc val store)
+  let newMap = insert key loc map
   setVarVal var $ Mapp newMap
 
 assign (ESelect (EVar var) field) val = do
   (Structt struct) <- getVarVal var
-  let newStruct = insert field val struct
+  loc <- alloc
+  modify (\store -> insert loc val store)
+  let newStruct = insert field loc struct
   setVarVal var $ Structt newStruct
 
 -- Declaration evaluations
